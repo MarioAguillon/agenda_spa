@@ -1,0 +1,83 @@
+<div class="horarios-page container">
+  <div class="header-actions">
+    <div>
+      <h1 class="serif-heading">Configuración de Horarios & Bloqueos</h1>
+      <p>Define la jornada laboral de Claudia Santana Nails y bloquea horas específicas (almuerzos, vacaciones).</p>
+    </div>
+    <div class="header-btns">
+      <app-button variant="outline-gold" (btnClick)="openBloqueoModal()">⛔ BLOQUEAR HORARIO</app-button>
+      <app-button variant="gold" (btnClick)="guardarHorarios()" [loading]="isSaving">GUARDAR CAMBIOS</app-button>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="success-banner animate-fade-in">
+    {{ successMessage }}
+  </div>
+
+  <app-loading *ngIf="isLoading" message="Cargando horarios de atención..."></app-loading>
+
+  <!-- Tabla / Lista de Días de la Semana -->
+  <div *ngIf="!isLoading" class="schedule-list card-surface">
+    <div *ngFor="let h of horarios" class="schedule-row">
+      <div class="day-label">
+        <label class="switch">
+          <input type="checkbox" [(ngModel)]="h.activo" />
+          <span class="slider round"></span>
+        </label>
+        <span class="day-name" [class.inactive]="!h.activo">
+          {{ diasNombre[h.diaSemana] }}
+        </span>
+      </div>
+
+      <div class="time-inputs" *ngIf="h.activo">
+        <div class="time-field">
+          <span>Apertura:</span>
+          <input type="time" [(ngModel)]="h.horaInicio" class="time-control" />
+        </div>
+        <span class="time-sep">a</span>
+        <div class="time-field">
+          <span>Cierre:</span>
+          <input type="time" [(ngModel)]="h.horaFin" class="time-control" />
+        </div>
+      </div>
+
+      <div class="closed-label" *ngIf="!h.activo">
+        CERRADO
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear Bloqueo de Horario -->
+  <div *ngIf="showBloqueoModal" class="modal-overlay animate-fade-in">
+    <div class="modal-card card-surface">
+      <h2 class="serif-heading">Bloquear Horario en Agenda</h2>
+      <form (ngSubmit)="guardarBloqueo()" class="modal-form">
+        <div class="form-group">
+          <label>Fecha a Bloquear</label>
+          <input type="date" [(ngModel)]="bloqueoFecha" name="fecha" required class="form-control" />
+        </div>
+
+        <div class="time-range-group">
+          <div class="form-group">
+            <label>Hora Inicio</label>
+            <input type="time" [(ngModel)]="bloqueoHoraInicio" name="horaInicio" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Hora Fin</label>
+            <input type="time" [(ngModel)]="bloqueoHoraFin" name="horaFin" required class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Motivo del Bloqueo</label>
+          <input type="text" [(ngModel)]="bloqueoMotivo" name="motivo" placeholder="Ej: Hora de Almuerzo / Cita Médica" class="form-control" />
+        </div>
+
+        <div class="modal-actions">
+          <app-button variant="secondary" (btnClick)="closeBloqueoModal()" type="button">CANCELAR</app-button>
+          <app-button variant="gold" type="submit" [loading]="isSavingBloqueo">APLICAR BLOQUEO</app-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

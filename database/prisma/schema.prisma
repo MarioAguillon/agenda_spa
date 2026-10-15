@@ -1,0 +1,168 @@
+// Prisma Schema - Claudia Santana Nails
+// Database: PostgreSQL
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Rol {
+  ADMIN
+  STAFF
+}
+
+enum EstadoCita {
+  CONFIRMADA
+  CANCELADA
+  COMPLETADA
+  NO_ASISTIO
+}
+
+enum OrigenCita {
+  ONLINE
+  DASHBOARD
+}
+
+enum TipoNotificacion {
+  WHATSAPP_CONFIRMACION
+  PUSH_NUEVA_CITA
+  EMAIL_CONFIRMACION
+}
+
+enum EstadoNotificacion {
+  PENDIENTE
+  ENVIADA
+  ERROR
+}
+
+model Usuario {
+  id           String    @id @default(uuid())
+  nombre       String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  rol          Rol       @default(ADMIN)
+  activo       Boolean   @default(true)
+  negocios     Negocio[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("usuarios")
+}
+
+model Negocio {
+  id               String           @id @default(uuid())
+  usuarioId        String           @map("usuario_id")
+  usuario          Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  nombre           String
+  descripcion      String?
+  telefono         String
+  logoUrl          String?          @map("logo_url")
+  imagenPortadaUrl String?          @map("imagen_portada_url")
+  direccion        String
+  servicios        Servicio[]
+  clientes         Cliente[]
+  horarios         HorarioNegocio[]
+  bloqueos         BloqueoHorario[]
+  citas            Cita[]
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  @@map("negocios")
+}
+
+model Servicio {
+  id              String   @id @default(uuid())
+  negocioId       String   @map("negocio_id")
+  negocio         Negocio  @relation(fields: [negocioId], references: [id], onDelete: Cascade)
+  nombre          String
+  descripcion     String?
+  duracionMinutos Int      @map("duracion_minutos")
+  activo          Boolean  @default(true)
+  citas           Cita[]
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("servicios")
+}
+
+model Cliente {
+  id        String   @id @default(uuid())
+  negocioId String   @map("negocio_id")
+  negocio   Negocio  @relation(fields: [negocioId], references: [id], onDelete: Cascade)
+  nombre    String
+  telefono  String
+  email     String?
+  notas     String?
+  citas     Cita[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([negocioId, telefono])
+  @@map("clientes")
+}
+
+model HorarioNegocio {
+  id         String  @id @default(uuid())
+  negocioId  String  @map("negocio_id")
+  negocio    Negocio @relation(fields: [negocioId], references: [id], onDelete: Cascade)
+  diaSemana  Int     @map("dia_semana") // 0=Domingo, 1=Lunes, ..., 6=Sábado
+  horaInicio String  @map("hora_inicio") // Formato "HH:mm" ej "09:00"
+  horaFin    String  @map("hora_fin") // Formato "HH:mm" ej "18:00"
+  activo     Boolean @default(true)
+
+  @@unique([negocioId, diaSemana])
+  @@map("horarios_negocio")
+}
+
+model BloqueoHorario {
+  id        String   @id @default(uuid())
+  negocioId String   @map("negocio_id")
+  negocio   Negocio  @relation(fields: [negocioId], references: [id], onDelete: Cascade)
+  fecha     DateTime @db.Date
+  horaInicio String  @map("hora_inicio") // "HH:mm"
+  horaFin   String   @map("hora_fin") // "HH:mm"
+  motivo    String?
+
+  @@map("bloqueos_horario")
+}
+
+model Cita {
+  id             String         @id @default(uuid())
+  negocioId      String         @map("negocio_id")
+  negocio        Negocio        @relation(fields: [negocioId], references: [id], onDelete: Cascade)
+  clienteId      String         @map("cliente_id")
+  cliente        Cliente        @relation(fields: [clienteId], references: [id])
+  servicioId     String         @map("servicio_id")
+  servicio       Servicio       @relation(fields: [servicioId], references: [id])
+  fecha          DateTime       @db.Date
+  horaInicio     String         @map("hora_inicio") // "HH:mm"
+  horaFin        String         @map("hora_fin") // "HH:mm"
+  estado         EstadoCita     @default(CONFIRMADA)
+  origen         OrigenCita     @default(ONLINE)
+  notas          String?
+  notificaciones Notificacion[]
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  @@index([negocioId, fecha])
+  @@map("citas")
+}
+
+model Notificacion {
+  id           String             @id @default(uuid())
+  citaId       String             @map("cita_id")
+  cita         Cita               @relation(fields: [citaId], references: [id], onDelete: Cascade)
+  tipo         TipoNotificacion
+  destinatario String
+  estado       EstadoNotificacion @default(PENDIENTE)
+  enviadoAt    DateTime?          @map("enviado_at")
+  detalleError String?            @map("detalle_error")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  @@map("notificaciones")
+}

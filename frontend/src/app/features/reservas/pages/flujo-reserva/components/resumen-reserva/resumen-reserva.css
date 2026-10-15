@@ -1,0 +1,35 @@
+.resumen-card {
+  padding: 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.resumen-details {
+  width: 100%;
+  padding: 1.5rem;
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  text-align: left;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.detail-row .label {
+  color: var(--color-mauve-gray);
+  font-weight: 500;
+}
+
+.detail-row .value {
+  color: var(--color-black);
+  font-weight: 700;
+}

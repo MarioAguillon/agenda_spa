@@ -1,0 +1,14 @@
+export const SALON_CONFIG = {
+  NOMBRE: 'Claudia Santana Nails',
+  TELEFONO: '573184642772',
+  TIMEZONE: process.env.TIMEZONE || 'America/Bogota',
+  COLORES: {
+    LAVANDA_CLARO: '#EEE7FA',
+    LAVANDA_SECUNDARIO: '#DCD0F0',
+    DORADO_PRINCIPAL: '#C9A227',
+    DORADO_CLARO: '#E4C96A',
+    NEGRO_ELEGANTE: '#19171C',
+    GRIS_MALVA: '#716A78',
+    BLANCO: '#FFFFFF'
+  }
+};

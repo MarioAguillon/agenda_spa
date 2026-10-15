@@ -1,0 +1,47 @@
+.servicio-card-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 2px solid transparent;
+  transition: all var(--transition-normal);
+}
+
+.servicio-card-item:hover {
+  border-color: var(--color-gold-light);
+  transform: translateY(-2px);
+}
+
+.servicio-card-item.selected {
+  border-color: var(--color-gold);
+  background-color: #FFFDF7;
+  box-shadow: var(--shadow-gold);
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.icon { font-size: 1.75rem; }
+
+.check-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  background: rgba(201, 162, 39, 0.12);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+}
+
+.servicio-nombre {
+  font-size: 1.35rem;
+  color: var(--color-black);
+}
+
+.servicio-desc {
+  font-size: 0.9rem;
+  color: var(--color-mauve-gray);
+}

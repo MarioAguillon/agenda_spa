@@ -1,0 +1,24 @@
+<div class="horarios-slots-card card-surface">
+  <div class="horarios-header">
+    <h3 class="serif-heading">Horarios Disponibles</h3>
+    <p class="horarios-sub">Selecciona la hora de tu preferencia para la cita.</p>
+  </div>
+
+  <div *ngIf="slots.length === 0" class="no-slots text-center">
+    <p>❌ No hay horarios disponibles para esta fecha. Por favor elige otro día.</p>
+  </div>
+
+  <div *ngIf="slots.length > 0" class="slots-grid">
+    <button
+      *ngFor="let s of slots"
+      class="slot-btn"
+      [class.selected]="selectedHora === s.horaInicio"
+      (click)="onSelect(s.horaInicio)">
+      <svg class="slot-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span class="slot-time">{{ s.horaInicio }}</span>
+    </button>
+  </div>
+</div>

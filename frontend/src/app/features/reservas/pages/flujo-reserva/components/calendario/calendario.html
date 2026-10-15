@@ -1,0 +1,16 @@
+<div class="calendario-card card-surface text-center">
+  <h3 class="serif-heading">Selecciona el Día de tu Cita</h3>
+  <p>Consulta las fechas disponibles para tu atención personalizada.</p>
+  
+  <div class="date-picker-wrapper">
+    <label for="fechaPicker">Fecha:</label>
+    <input
+      type="date"
+      id="fechaPicker"
+      [min]="minFecha"
+      [value]="selectedFecha"
+      (change)="onDateChange($event)"
+      class="date-input"
+    />
+  </div>
+</div>

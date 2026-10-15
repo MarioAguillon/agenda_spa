@@ -1,0 +1,11 @@
+<div
+  class="servicio-card-item card-surface"
+  [class.selected]="isSelected"
+  (click)="onClick()">
+  <div class="card-header-row">
+    <span class="icon">💅</span>
+    <span *ngIf="isSelected" class="check-badge">✓ SELECCIONADO</span>
+  </div>
+  <h3 class="servicio-nombre">{{ servicio.nombre }}</h3>
+  <p class="servicio-desc">{{ servicio.descripcion || 'Tratamiento profesional exclusivo.' }}</p>
+</div>

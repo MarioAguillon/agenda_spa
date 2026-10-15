@@ -1,0 +1,23 @@
+<div class="elegant-form-container">
+  <form (ngSubmit)="onSubmit()" #clienteForm="ngForm">
+    <div class="elegant-input-group">
+      <input type="text" [(ngModel)]="nombre" name="nombre" required placeholder="NOMBRE" class="elegant-input" autocomplete="off" />
+      <span class="edit-icon">✎</span>
+    </div>
+
+    <div class="elegant-input-group">
+      <input type="text" [(ngModel)]="email" name="email" placeholder="APELLIDO" class="elegant-input" autocomplete="off" />
+      <span class="edit-icon">✎</span>
+    </div>
+
+    <div class="elegant-input-group">
+      <input type="tel" [(ngModel)]="telefono" name="telefono" required placeholder="CELULAR" class="elegant-input" autocomplete="off" />
+      <span class="edit-icon">✎</span>
+    </div>
+
+    <div class="nav-actions mt-4">
+      <button type="button" class="btn-text" (click)="onBack($event)">❮ Atrás</button>
+      <button type="submit" class="btn-primary-gold" [disabled]="!clienteForm.form.valid">Continuar ❯</button>
+    </div>
+  </form>
+</div>

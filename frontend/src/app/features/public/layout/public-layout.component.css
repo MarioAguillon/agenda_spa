@@ -1,0 +1,165 @@
+/* ========================================
+   HEADER GLASSMORPHISM
+   ======================================== */
+.glass-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2000;
+  /* Glassmorphism Effect */
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  height: 70px;
+}
+
+/* ========================================
+   LOGO
+   ======================================== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.logo:hover {
+  transform: scale(1.02);
+}
+
+.logo-icon {
+  font-size: 1.5rem;
+}
+
+.logo-text {
+  font-family: var(--font-serif, 'Playfair Display', serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   NAVEGACIÓN DESKTOP
+   ======================================== */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  font-family: var(--font-sans, sans-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #555;
+  position: relative;
+  padding: 0.5rem 0;
+  transition: color 0.2s;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--color-pink, #e91e63);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-pink, #e91e63);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link.active {
+  color: var(--color-pink, #e91e63);
+}
+
+/* Enlace especial Admin */
+.nav-link-login {
+  font-size: 0.85rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.nav-link-login::after {
+  display: none;
+}
+.nav-link-login:hover {
+  color: #333;
+}
+
+/* ========================================
+   NAVEGACIÓN MÓVIL
+   ======================================== */
+.mobile-nav {
+  display: none;
+}
+
+.btn-reservar-mobile {
+  text-decoration: none;
+  background: linear-gradient(135deg, #e91e63, #c2185b);
+  color: white;
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(233, 30, 99, 0.2);
+}
+
+/* ========================================
+   LAYOUT CONTENT (Push down)
+   ======================================== */
+.layout-content {
+  /* Empujar el contenido hacia abajo para que no quede detrás del header fijo */
+  padding-top: 70px;
+  min-height: 100vh;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none;
+  }
+  
+  .mobile-nav {
+    display: block;
+  }
+
+  .header-container {
+    padding: 0.75rem 1rem;
+    height: 60px;
+  }
+  
+  .layout-content {
+    padding-top: 60px;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+}

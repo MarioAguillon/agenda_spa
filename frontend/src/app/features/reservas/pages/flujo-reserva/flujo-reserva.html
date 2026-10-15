@@ -1,0 +1,231 @@
+<div class="flujo-reserva-page">
+  <!-- Loading principal -->
+  <app-loading *ngIf="isLoadingServicios" message="Cargando servicios disponibles..."></app-loading>
+
+  <!-- Banner de error -->
+  <div *ngIf="errorMessage" class="error-banner animate-fade-in">
+    <span>⚠️ {{ errorMessage }}</span>
+  </div>
+
+  <div *ngIf="!isLoadingServicios" class="split-layout">
+
+    <!-- ==================== COLUMNA IZQUIERDA: Resumen ==================== -->
+    <aside class="sidebar-resumen">
+      <!-- Botones de navegación (Desktop) -->
+      <div class="sidebar-nav">
+        <button class="btn-regresar" (click)="goBack()" [disabled]="currentStep === 1">
+          ← REGRESAR
+        </button>
+        <button class="btn-continuar" (click)="goNext()" [disabled]="!canGoNext">
+          CONTINUAR
+        </button>
+      </div>
+
+      <!-- Info del negocio -->
+      <div class="sidebar-negocio">
+        <h2 class="negocio-nombre">CLAUDIA SANTANA NAILS</h2>
+        <p class="negocio-dir">Calle 21 # 2-16, Mosquera</p>
+      </div>
+
+      <!-- Fecha de la reserva -->
+      <div class="sidebar-info-item" *ngIf="selectedFecha">
+        <span class="info-label">Fecha de la reserva:</span>
+        <span class="info-pill">{{ selectedFecha }}</span>
+      </div>
+
+      <!-- Profesional seleccionada -->
+      <div class="sidebar-info-item" *ngIf="currentStep >= 4">
+        <div class="sidebar-profesional">
+          <span class="star-icon">⭐</span>
+          <span class="prof-name-sidebar">CLAUDIA</span>
+        </div>
+      </div>
+
+      <!-- Servicios seleccionados -->
+      <div class="sidebar-servicios" *ngIf="selectedServicios.length > 0">
+        <h4 class="servicios-titulo">Servicios seleccionados:</h4>
+        <div class="servicio-sidebar-item" *ngFor="let s of selectedServicios">
+          <span class="serv-bullet">💅</span>
+          <div>
+            <span class="serv-name-sidebar">{{ s.categoria }} - {{ s.nombre }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-spacer" *ngIf="selectedServicios.length === 0 && currentStep < 3">
+        <p class="no-serv-msg">Todavía no hay servicios seleccionados.</p>
+      </div>
+
+      <!-- Totales (Removidos por petición del cliente) -->
+    </aside>
+
+    <!-- ==================== COLUMNA DERECHA: Contenido Interactivo ==================== -->
+    <main class="main-content">
+
+      <!-- PASO 1: SELECCIÓN DE FECHA -->
+      <section *ngIf="currentStep === 1" class="step-section animate-fade-in">
+        <h2 class="step-heading">¿CUÁNDO QUIERES TU RESERVA?</h2>
+
+        <div class="fecha-selector-grid">
+          <button class="fecha-btn" [class.selected]="tipoFechaSeleccionada === 'HOY'" (click)="seleccionarTipoFecha('HOY')" *ngIf="hoyDisponible">
+            <span class="fecha-icon">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6m0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>
+              </svg>
+            </span>
+            <span class="fecha-label">HOY</span>
+          </button>
+
+          <button class="fecha-btn" [class.selected]="tipoFechaSeleccionada === 'MANANA'" (click)="seleccionarTipoFecha('MANANA')" *ngIf="mananaDisponible">
+            <span class="fecha-icon">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+              </svg>
+            </span>
+            <span class="fecha-label">MAÑANA</span>
+          </button>
+
+          <button class="fecha-btn" [class.selected]="tipoFechaSeleccionada === 'OTRA'" (click)="seleccionarTipoFecha('OTRA')">
+            <span class="fecha-icon">
+              <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+              </svg>
+            </span>
+            <span class="fecha-label">OTRA FECHA</span>
+          </button>
+        </div>
+
+        <div *ngIf="selectedFechaDisplay" class="fecha-display">
+          <span class="fecha-icon-cal">📅</span>
+          <span class="fecha-text-label">Fecha:</span>
+          <span class="fecha-pill">{{ selectedFechaDisplay }}</span>
+        </div>
+
+        <div *ngIf="mostrarCalendario" class="calendario-wrapper mt-4">
+          <app-calendario (selectFecha)="onSelectFecha($event)"></app-calendario>
+        </div>
+      </section>
+
+      <!-- PASO 2: DATOS DEL CLIENTE -->
+      <section *ngIf="currentStep === 2" class="step-section animate-fade-in">
+        <h2 class="step-heading">¿PARA CUÁNTAS PERSONAS QUIERES TU RESERVA?</h2>
+
+        <div class="personas-counter">
+          <button class="counter-btn" (click)="decrementarPersonas()" [disabled]="cantidadPersonas <= 1">−</button>
+          <span class="counter-value">{{ cantidadPersonas }}</span>
+          <button class="counter-btn" (click)="incrementarPersonas()" [disabled]="cantidadPersonas >= 5">+</button>
+        </div>
+
+        <p class="datos-subtitle">Ingresa el nombre de la persona que asistirá a la cita</p>
+
+        <!-- Tabs de personas -->
+        <div class="personas-tabs" *ngIf="cantidadPersonas > 1">
+          <button *ngFor="let p of personas; let i = index"
+            class="persona-tab" [class.active]="personaActiva === i"
+            (click)="seleccionarPersona(i)">
+            <span class="star-icon">⭐</span> PERSONA {{ i + 1 }}
+          </button>
+        </div>
+
+        <div class="persona-badge-single" *ngIf="cantidadPersonas === 1">
+          <span class="star-icon">⭐</span> PERSONA 1
+        </div>
+
+        <!-- Formulario inline -->
+        <div class="elegant-form">
+          <div class="elegant-input-group">
+            <input type="text" [(ngModel)]="personaActivaData.nombre" placeholder="NOMBRE" class="elegant-input" autocomplete="off" />
+            <span class="edit-icon">✎</span>
+          </div>
+          <div class="elegant-input-group">
+            <input type="text" [(ngModel)]="personaActivaData.apellido" placeholder="APELLIDO" class="elegant-input" autocomplete="off" />
+            <span class="edit-icon">✎</span>
+          </div>
+          <div class="elegant-input-group">
+            <input type="tel" [(ngModel)]="personaActivaData.celular" placeholder="CELULAR" class="elegant-input" autocomplete="off" />
+            <span class="edit-icon">✎</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PASO 3: SELECCIÓN DE SERVICIOS -->
+      <section *ngIf="currentStep === 3" class="step-section animate-fade-in">
+        <div class="categorias-bar">
+          <ng-container *ngFor="let cat of categoriasOrdenadas">
+            <button *ngIf="serviciosPorCategoria[cat]"
+              class="categoria-chip"
+              [class.active]="categoriaActiva === cat"
+              (click)="toggleCategoria(cat)">
+              <span class="cat-chip-icon">{{ getIconForCategory(cat) }}</span>
+              <span class="cat-chip-label">{{ cat }}</span>
+            </button>
+          </ng-container>
+        </div>
+
+        <!-- Lista de servicios de la categoría activa -->
+        <div *ngFor="let cat of categoriasOrdenadas">
+          <ng-container *ngIf="serviciosPorCategoria[cat]">
+            <div class="servicios-list" *ngIf="categoriaActiva === cat">
+              <div *ngFor="let serv of serviciosPorCategoria[cat]"
+                class="servicio-row"
+                [class.selected]="isServicioSelected(serv)"
+                (click)="toggleServicio(serv)">
+                <div class="serv-radio" [class.checked]="isServicioSelected(serv)"></div>
+                <div class="serv-details">
+                  <h4 class="serv-title">{{ serv.categoria | uppercase }} - {{ serv.nombre | uppercase }}</h4>
+                  <p class="serv-description">{{ serv.descripcion }}</p>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </section>
+
+      <!-- PASO 4: SELECCIÓN DE PROFESIONAL -->
+      <section *ngIf="currentStep === 4" class="step-section animate-fade-in">
+        <h2 class="step-heading">Selecciona tu Gestora</h2>
+
+        <div class="profesionales-list">
+          <div class="profesional-row selected">
+            <div class="prof-radio checked"></div>
+            <span class="prof-row-name">CLAUDIA SANTANA</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PASO 5: SELECCIÓN DE HORA -->
+      <section *ngIf="currentStep === 5" class="step-section animate-fade-in">
+        <h2 class="step-heading">Elige el horario de tu cita</h2>
+        <p class="step-sub">Para el día: <strong>{{ selectedFecha }}</strong></p>
+
+        <app-loading *ngIf="isLoadingSlots" message="Consultando disponibilidad..."></app-loading>
+
+        <app-horarios-slots
+          *ngIf="!isLoadingSlots"
+          [slots]="slotsDisponibles"
+          [selectedHora]="selectedHora"
+          (selectHora)="onSelectHora($event)">
+        </app-horarios-slots>
+
+        <div class="mt-5 text-center" *ngIf="selectedHora">
+          <button class="btn-agendar-final" (click)="confirmarReserva()" [disabled]="isSubmitting">
+            {{ isSubmitting ? 'AGENDANDO...' : '¡AGENDAR MI CITA!' }}
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==================== BARRA INFERIOR MÓVIL ==================== -->
+  <div class="mobile-bottom-bar" *ngIf="!isLoadingServicios">
+    <button class="mob-btn-back" (click)="goBack()" [disabled]="currentStep === 1">❮ Atrás</button>
+    <div class="mob-info">
+      <span *ngIf="selectedServicios.length > 0">{{ selectedServicios.length }} servicio(s)</span>
+      <span *ngIf="selectedServicios.length === 0">Paso {{ currentStep }} de 5</span>
+    </div>
+    <button class="mob-btn-next" (click)="goNext()" [disabled]="!canGoNext">Continuar ❯</button>
+  </div>
+</div>

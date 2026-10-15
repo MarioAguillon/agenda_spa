@@ -1,0 +1,25 @@
+<header class="glass-header">
+  <div class="header-container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <span class="logo-icon">💅</span>
+      <span class="logo-text">Claudia Santana</span>
+    </a>
+
+    <!-- Nav Desktop -->
+    <nav class="desktop-nav">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Inicio</a>
+      <a routerLink="/reservar" routerLinkActive="active" class="nav-link">Reservar</a>
+      <a routerLink="/login" class="nav-link nav-link-login">Admin</a>
+    </nav>
+
+    <!-- Nav Mobile (Simplificado) -->
+    <div class="mobile-nav">
+      <a routerLink="/reservar" class="btn-reservar-mobile">Agendar</a>
+    </div>
+  </div>
+</header>
+
+<main class="layout-content">
+  <router-outlet></router-outlet>
+</main>

@@ -1,0 +1,36 @@
+<div class="dashboard-root">
+  <!-- Top Navigation Bar -->
+  <header class="dash-header">
+    <div class="container dash-header-container">
+      <div class="dash-brand">
+        <span class="logo-title">CLAUDIA SANTANA</span>
+        <span class="dash-badge gold-badge">Panel PWA</span>
+      </div>
+
+      <nav class="dash-nav">
+        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+          📅 Agenda
+        </a>
+        <a routerLink="/dashboard/clientes" routerLinkActive="active" class="nav-item">
+          👥 Clientes
+        </a>
+        <a routerLink="/dashboard/servicios" routerLinkActive="active" class="nav-item">
+          💅 Servicios
+        </a>
+        <a routerLink="/dashboard/configuracion" routerLinkActive="active" class="nav-item">
+          ⏰ Horarios
+        </a>
+      </nav>
+
+      <div class="user-actions">
+        <span class="user-name">Hola, {{ authService.currentUser()?.nombre || 'Claudia' }}</span>
+        <button class="btn-logout" (click)="logout()" title="Cerrar Sesión">🚪 Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido de las páginas hijas del Dashboard -->
+  <main class="dash-content-body">
+    <router-outlet></router-outlet>
+  </main>
+</div>

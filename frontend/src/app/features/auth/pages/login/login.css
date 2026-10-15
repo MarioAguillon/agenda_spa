@@ -1,0 +1,83 @@
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 2.5rem 2rem;
+}
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-title {
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.logo-sub {
+  font-size: 0.75rem;
+  color: var(--color-gold);
+  letter-spacing: 0.25em;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.admin-badge {
+  margin-top: 0.5rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.form-control {
+  padding: 0.875rem 1rem;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--bg-secondary);
+  background-color: #FAFAFA;
+  transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
+}
+
+.error-banner {
+  padding: 0.75rem 1rem;
+  background-color: rgba(211, 47, 47, 0.08);
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--color-error);
+  font-size: 0.875rem;
+  font-weight: 500;
+}

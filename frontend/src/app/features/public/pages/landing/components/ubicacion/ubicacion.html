@@ -1,0 +1,36 @@
+<section class="ubicacion-section" id="ubicacion">
+  <div class="container ubicacion-grid">
+    <div class="ubicacion-info card-surface">
+      <span class="gold-badge">Encuéntranos</span>
+      <h2 class="serif-heading">Ubicación y Horarios</h2>
+      <p class="address-text">📍 Calle 21 # 2 - 16, Mosquera, Cundinamarca</p>
+
+      <div class="horarios-list">
+        <h4>🕐 Horario de Atención</h4>
+        <p>Lunes a Sábado: 9:00 AM – 6:00 PM</p>
+        <p>Domingos y Festivos: Cerrado</p>
+      </div>
+
+      <div class="ubicacion-actions">
+        <button class="btn btn-gold" (click)="openGoogleMaps()">
+          🗺️ CÓMO LLEGAR
+        </button>
+        <button class="btn btn-whatsapp" (click)="openWhatsApp()">
+          📲 ESCRIBIR POR WHATSAPP
+        </button>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3976.8!2d-74.2327!3d4.7109!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNMKwNDInMzkuMiJOIDc0wrAxMyc1Ny43Ilc!5e0!3m2!1ses!2sco!4v1"
+        width="100%"
+        height="100%"
+        style="border:0; border-radius: 16px;"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+  </div>
+</section>

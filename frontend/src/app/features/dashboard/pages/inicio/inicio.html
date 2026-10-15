@@ -1,0 +1,195 @@
+<div class="inicio-page container">
+  <!-- Encabezado y Estadísticas -->
+  <div class="page-header">
+    <h1 class="serif-heading">📅 Panel del Día</h1>
+    <app-button variant="gold" (btnClick)="openCrearCitaModal()">+ CREAR CITA MANUAL</app-button>
+  </div>
+
+  <app-loading *ngIf="isLoading" message="Cargando agenda del día..."></app-loading>
+
+  <div *ngIf="!isLoading && resumen" class="dashboard-content animate-fade-in">
+    <!-- Tarjetas de Estadísticas -->
+    <div class="stats-grid">
+      <div class="stat-card card-surface">
+        <span class="stat-number">{{ resumen.citasHoyCount }}</span>
+        <span class="stat-label">Citas Hoy</span>
+      </div>
+      <div class="stat-card card-surface">
+        <span class="stat-number">{{ resumen.proximasCitas.length }}</span>
+        <span class="stat-label">Próximos 7 Días</span>
+      </div>
+      <div class="stat-card card-surface">
+        <span class="stat-number">{{ resumen.totalClientes }}</span>
+        <span class="stat-label">Clientas</span>
+      </div>
+      <div class="stat-card card-surface">
+        <span class="stat-number">{{ resumen.totalServicios }}</span>
+        <span class="stat-label">Servicios Activos</span>
+      </div>
+    </div>
+
+    <!-- Citas de Hoy (Kanban View) -->
+    <div class="section-block">
+      <div class="kanban-header">
+        <h2 class="serif-heading section-title">📅 Citas de Hoy (Kanban)</h2>
+        <span class="date-subtitle">Gestiona el flujo de trabajo de hoy arrastrando o usando los botones.</span>
+      </div>
+
+      <div *ngIf="resumen.citasHoy.length === 0" class="empty-state card-surface text-center">
+        <p>No hay citas agendadas para hoy. ¡Día libre o por llenar! 🌟</p>
+      </div>
+
+      <div *ngIf="resumen.citasHoy.length > 0" class="kanban-board">
+        <!-- Columna: PENDIENTES / CONFIRMADAS -->
+        <div class="kanban-col">
+          <div class="k-col-header confirmadas-header">
+            <h3>⏳ Pendientes</h3>
+            <span class="k-count">{{ citasConfirmadas.length }}</span>
+          </div>
+          <div class="k-cards">
+            <div *ngFor="let cita of citasConfirmadas" class="k-card card-surface confirmada">
+              <div class="k-card-time">{{ cita.horaInicio }} - {{ cita.horaFin }}</div>
+              <div class="k-card-client">{{ cita.cliente?.nombre || 'Clienta' }}</div>
+              <div class="k-card-services">
+                <span *ngFor="let s of cita.servicios; let last = last">{{ s.nombre }}{{ !last ? ', ' : '' }}</span>
+              </div>
+              <div class="k-card-actions">
+                <button class="k-btn k-btn-complete" title="Completar" (click)="cambiarEstado(cita, 'COMPLETADA')">✅</button>
+                <button class="k-btn k-btn-noshow" title="No Asistió" (click)="cambiarEstado(cita, 'NO_ASISTIO')">⚠️</button>
+                <button class="k-btn k-btn-cancel" title="Cancelar" (click)="cambiarEstado(cita, 'CANCELADA')">❌</button>
+              </div>
+            </div>
+            <div *ngIf="citasConfirmadas.length === 0" class="k-empty">No hay citas pendientes.</div>
+          </div>
+        </div>
+
+        <!-- Columna: COMPLETADAS -->
+        <div class="kanban-col">
+          <div class="k-col-header completadas-header">
+            <h3>🎉 Completadas</h3>
+            <span class="k-count">{{ citasCompletadas.length }}</span>
+          </div>
+          <div class="k-cards">
+            <div *ngFor="let cita of citasCompletadas" class="k-card card-surface completada">
+              <div class="k-card-time">{{ cita.horaInicio }}</div>
+              <div class="k-card-client">{{ cita.cliente?.nombre || 'Clienta' }}</div>
+              <div class="k-card-services">
+                <span *ngFor="let s of cita.servicios; let last = last">{{ s.nombre }}{{ !last ? ', ' : '' }}</span>
+              </div>
+            </div>
+            <div *ngIf="citasCompletadas.length === 0" class="k-empty">Aún no hay citas completadas.</div>
+          </div>
+        </div>
+
+        <!-- Columna: CANCELADAS / NO ASISTIÓ -->
+        <div class="kanban-col">
+          <div class="k-col-header canceladas-header">
+            <h3>❌ Canceladas</h3>
+            <span class="k-count">{{ citasCanceladas.length }}</span>
+          </div>
+          <div class="k-cards">
+            <div *ngFor="let cita of citasCanceladas" class="k-card card-surface cancelada">
+              <div class="k-card-time">{{ cita.horaInicio }}</div>
+              <div class="k-card-client">{{ cita.cliente?.nombre || 'Clienta' }}</div>
+              <div class="k-card-status">{{ getEstadoLabel(cita.estado) }}</div>
+            </div>
+            <div *ngIf="citasCanceladas.length === 0" class="k-empty">No hay cancelaciones hoy.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Próximas Citas -->
+    <div class="section-block">
+      <h2 class="serif-heading section-title">📆 Próximas Citas (7 días)</h2>
+
+      <div *ngIf="resumen.proximasCitas.length === 0" class="empty-state card-surface text-center">
+        <p>No hay citas agendadas para los próximos 7 días.</p>
+      </div>
+
+      <div *ngIf="resumen.proximasCitas.length > 0" class="citas-list">
+        <div *ngFor="let cita of resumen.proximasCitas" class="cita-row card-surface">
+          <div class="cita-time">
+            <span class="date-badge">{{ cita.fecha | date:'EEE dd MMM' }}</span>
+            <span class="time-badge">{{ cita.horaInicio }}</span>
+          </div>
+          <div class="cita-info">
+            <h4 class="cita-client-name">{{ cita.cliente?.nombre }}</h4>
+            <span class="cita-service gold-badge">
+              <span *ngFor="let s of cita.servicios; let last = last">{{ s.nombre }}{{ !last ? ', ' : '' }}</span>
+            </span>
+          </div>
+          <div class="cita-status">
+            <span class="estado-label">{{ getEstadoLabel(cita.estado) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear Cita Manual -->
+  <div *ngIf="showCrearCitaModal" class="modal-overlay animate-fade-in">
+    <div class="modal-card card-surface">
+      <h2 class="serif-heading">Crear Cita Manual</h2>
+      <p>Para clientas que reservan por llamada o en persona.</p>
+
+      <form (ngSubmit)="guardarCitaManual()" class="modal-form">
+        <div class="form-group">
+          <label>Servicio</label>
+          <select [(ngModel)]="manualServicioId" name="servicioId" required class="form-control">
+            <option value="" disabled>Seleccionar servicio...</option>
+            <option *ngFor="let s of servicios" [value]="s.id">{{ s.nombre }} ({{ s.duracionMinutos }}min)</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="date" [(ngModel)]="manualFecha" name="fecha" required class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>Hora</label>
+            <input type="time" [(ngModel)]="manualHoraInicio" name="horaInicio" required class="form-control" />
+          </div>
+        </div>
+
+        <!-- Selector de Cliente -->
+        <div class="form-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="useNuevoCliente" name="useNuevo" />
+            Registrar nueva clienta
+          </label>
+        </div>
+
+        <div *ngIf="useNuevoCliente">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="manualNuevoNombre" name="nuevoNombre" placeholder="Nombre completo" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label>WhatsApp</label>
+            <input type="tel" [(ngModel)]="manualNuevoTelefono" name="nuevoTelefono" placeholder="573001234567" class="form-control" />
+          </div>
+        </div>
+
+        <div *ngIf="!useNuevoCliente" class="form-group">
+          <label>Clienta Existente</label>
+          <select [(ngModel)]="manualClienteId" name="clienteId" class="form-control">
+            <option value="" disabled>Seleccionar clienta...</option>
+            <option *ngFor="let c of clientes" [value]="c.id">{{ c.nombre }} – {{ c.telefono }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Notas (Opcional)</label>
+          <textarea [(ngModel)]="manualNotas" name="notas" rows="2" placeholder="Observaciones..." class="form-control"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <app-button variant="secondary" (btnClick)="closeCrearCitaModal()" type="button">CANCELAR</app-button>
+          <app-button variant="gold" type="submit" [loading]="isSaving">AGENDAR CITA</app-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="confirmacion-page container">
+  <div class="confirmacion-card card-surface text-center animate-fade-in">
+    <div class="success-icon">🎉</div>
+    <span class="gold-badge">¡Reserva Agendada con Éxito!</span>
+    <h1 class="serif-heading">¡Te esperamos, {{ nombre }}!</h1>
+    <p class="subtitle">Tu cita ha sido registrada correctamente en la agenda de Claudia Santana Nails.</p>
+
+    <!-- Ficha de la Reserva -->
+    <div class="summary-box gold-accent-border">
+      <div class="summary-row">
+        <span>💅 Servicio:</span>
+        <strong>{{ servicio }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>📅 Fecha:</span>
+        <strong>{{ fecha }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>🕐 Hora:</span>
+        <strong>{{ hora }}</strong>
+      </div>
+    </div>
+
+    <!-- Botón directo de Confirmación por WhatsApp (Estrategia wa.me) -->
+    <div class="wa-action-box">
+      <a [href]="getWhatsAppLink()" target="_blank" class="btn-wa-direct">
+        📲 ABRIR CONFIRMACIÓN EN WHATSAPP
+      </a>
+      <p class="hint">Toca este botón para enviarnos un mensaje rápido por WhatsApp si deseas confirmar algún detalle.</p>
+    </div>
+
+    <div class="mt-4">
+      <a routerLink="/">
+        <app-button variant="outline-gold">VOLVER A INICIO</app-button>
+      </a>
+    </div>
+  </div>
+</div>

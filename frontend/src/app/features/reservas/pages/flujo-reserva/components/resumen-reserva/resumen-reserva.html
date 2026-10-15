@@ -1,0 +1,34 @@
+<div class="resumen-card card-surface text-center">
+  <span class="gold-badge">Paso Final</span>
+  <h3 class="serif-heading">Resumen de tu Reserva</h3>
+  <p>Verifica que todos los datos sean correctos antes de confirmar.</p>
+
+  <div class="resumen-details gold-accent-border">
+    <div class="detail-row">
+      <span class="label">💅 Servicio:</span>
+      <span class="value">
+        <span *ngFor="let s of servicios; let last = last">{{ s.nombre }}{{ !last ? ', ' : '' }}</span>
+      </span>
+    </div>
+    <div class="detail-row">
+      <span class="label">📅 Fecha:</span>
+      <span class="value">{{ fecha }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">🕐 Hora:</span>
+      <span class="value">{{ hora }}</span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Clienta:</span>
+      <span class="value">{{ cliente.nombre }}</span>
+    </div>
+    <div class="summary-row" *ngIf="cliente.telefono">
+      <span class="label">Teléfono:</span>
+      <span class="value">{{ cliente.telefono }}</span>
+    </div>
+  </div>
+
+  <app-button variant="gold" [fullWidth]="true" [loading]="isSubmitting" (btnClick)="onConfirm()">
+    ✨ CONFIRMAR CITA
+  </app-button>
+</div>

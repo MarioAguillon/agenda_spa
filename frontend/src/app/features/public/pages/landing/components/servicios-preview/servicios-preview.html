@@ -1,0 +1,37 @@
+<section class="servicios-section" id="servicios">
+  <div class="container">
+    <div class="section-header">
+      <span class="gold-badge">Nuestros Servicios</span>
+      <h2 class="serif-heading">¿Qué te gustaría hoy?</h2>
+    </div>
+
+    <div class="categorias-grid">
+      <div
+        *ngFor="let cat of categorias"
+        class="categoria-card"
+        [class.open]="cat.isOpen"
+        (click)="toggleCategoria(cat)">
+
+        <!-- Imagen de fondo de la categoría -->
+        <div class="cat-image" [style.backgroundImage]="'url(' + cat.imagen + ')'">
+          <div class="cat-overlay">
+            <span class="cat-emoji">{{ cat.emoji }}</span>
+            <h3 class="cat-nombre">{{ cat.nombre }}</h3>
+            <span class="cat-hint">{{ cat.isOpen ? 'Cerrar ✕' : 'Ver opciones →' }}</span>
+          </div>
+        </div>
+
+        <!-- Sub-opciones que se revelan al hacer click -->
+        <div class="cat-subopciones" *ngIf="cat.isOpen" (click)="$event.stopPropagation()">
+          <button
+            *ngFor="let s of cat.servicios"
+            class="subopcion-btn"
+            (click)="agendarServicio(s)">
+            <span class="sub-name">{{ getSubName(s, cat.nombre) || s.nombre }}</span>
+            <span class="sub-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

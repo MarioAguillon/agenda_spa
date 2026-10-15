@@ -1,0 +1,37 @@
+.main-footer {
+  background-color: var(--color-black);
+  color: var(--color-white);
+  padding-top: 4rem;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.footer-brand p, .footer-contact p {
+  color: #A098A8;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.footer-brand .logo-title {
+  color: var(--color-white);
+}
+
+.footer-contact h4 {
+  color: var(--color-white);
+  font-family: var(--font-primary);
+  font-size: 1.1rem;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.25rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #A098A8;
+}

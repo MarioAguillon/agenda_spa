@@ -1,0 +1,61 @@
+<div class="servicios-page container">
+  <div class="header-actions">
+    <div>
+      <h1 class="serif-heading">Catálogo de Servicios</h1>
+      <p>Administra los servicios offered y sus duraciones para el cálculo de agenda.</p>
+    </div>
+    <app-button variant="gold" (btnClick)="openCreateModal()">+ NUEVO SERVICIO</app-button>
+  </div>
+
+  <app-loading *ngIf="isLoading" message="Cargando catálogo de servicios..."></app-loading>
+
+  <div *ngIf="!isLoading" class="services-grid">
+    <div *ngFor="let s of servicios" class="card-surface service-card gold-accent-border">
+      <div class="card-header">
+        <h3 class="service-name">{{ s.nombre }}</h3>
+        <span [class]="s.activo ? 'status-badge active' : 'status-badge inactive'">
+          {{ s.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <p class="service-desc">{{ s.descripcion || 'Sin descripción' }}</p>
+      
+      <div class="card-footer">
+        <span class="duration-badge">⏱️ {{ s.duracionMinutos }} min</span>
+        <div class="actions">
+          <button class="btn-icon" (click)="openEditModal(s)" title="Editar">✏️</button>
+          <button class="btn-icon" (click)="toggleActivo(s)" [title]="s.activo ? 'Desactivar' : 'Activar'">
+            {{ s.activo ? '🔴' : '🟢' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Modal Crear / Editar -->
+  <div *ngIf="showModal" class="modal-overlay animate-fade-in">
+    <div class="modal-card card-surface">
+      <h2 class="serif-heading">{{ editingServicioId ? 'Editar Servicio' : 'Nuevo Servicio' }}</h2>
+      <form (ngSubmit)="guardarServicio()" class="modal-form">
+        <div class="form-group">
+          <label>Nombre del Servicio</label>
+          <input type="text" [(ngModel)]="nombre" name="nombre" required placeholder="Ej: Manicure Rusa" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>Duración (Minutos)</label>
+          <input type="number" [(ngModel)]="duracionMinutos" name="duracionMinutos" required min="10" step="5" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea [(ngModel)]="descripcion" name="descripcion" rows="3" placeholder="Descripción opcional..." class="form-control"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <app-button variant="secondary" (btnClick)="closeModal()" type="button">CANCELAR</app-button>
+          <app-button variant="gold" type="submit" [loading]="isSaving">GUARDAR</app-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

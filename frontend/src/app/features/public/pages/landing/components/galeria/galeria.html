@@ -1,0 +1,18 @@
+<section class="galeria-section" id="galeria">
+  <div class="container">
+    <div class="section-header">
+      <span class="gold-badge">Nuestro Trabajo</span>
+      <h2 class="serif-heading">Resultados que Inspiran</h2>
+    </div>
+
+    <div class="galeria-grid">
+      <div *ngFor="let item of trabajos" class="galeria-item">
+        <img [src]="item.imagen" [alt]="item.titulo" loading="lazy" />
+        <div class="item-overlay">
+          <span class="item-tag gold-badge">{{ item.tag }}</span>
+          <h4 class="item-title">{{ item.titulo }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
