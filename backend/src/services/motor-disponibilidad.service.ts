@@ -4,7 +4,8 @@ import { horariosRepository } from '../repositories/horarios.repository';
 import { citasRepository } from '../repositories/citas.repository';
 import { bloqueosRepository } from '../repositories/bloqueos.repository';
 import { AppError } from '../middlewares/error.middleware';
-import { timeToMinutes, minutesToTime, isOverlapping } from '../utils/date-helpers';
+import { timeToMinutes, minutesToTime, isOverlapping, fechaHoyEnZona, minutosAhoraEnZona, sumarDias } from '../utils/date-helpers';
+import { ENV } from '../config/env';
 
 export interface SlotDisponible {
   horaInicio: string;
@@ -17,10 +18,19 @@ export class MotorDisponibilidadService {
     const negocio = await negociosRepository.getFirstNegocio();
     if (!negocio) throw new AppError('Negocio no encontrado', 404);
 
-    const servicios = await serviciosRepository.findByIds(servicioIds);
-    if (!servicios || servicios.length === 0 || servicios.some(s => !s.activo)) {
+    const idsUnicos = [...new Set(servicioIds)];
+    const servicios = await serviciosRepository.findByIds(idsUnicos);
+    if (servicios.length !== idsUnicos.length || servicios.some(s => !s.activo)) {
       throw new AppError('Servicios no encontrados o inactivos', 404);
     }
+
+    // Fechas pasadas o demasiado lejanas no tienen disponibilidad
+    const hoy = fechaHoyEnZona(ENV.TIMEZONE);
+    if (fechaStr < hoy || fechaStr > sumarDias(hoy, ENV.MAX_DIAS_ANTICIPACION)) {
+      return [];
+    }
+    // Si la fecha es hoy, solo se ofrecen horas posteriores a la actual (hora de Bogotá)
+    const minimoInicioMin = fechaStr === hoy ? minutosAhoraEnZona(ENV.TIMEZONE) + 1 : 0;
 
     // Convertir string YYYY-MM-DD a objeto Date (UTC medianoche)
     const fechaObj = new Date(fechaStr + 'T00:00:00.000Z');
@@ -57,6 +67,7 @@ export class MotorDisponibilidadService {
     const STEP_MINUTES = 30;
 
     for (let currentMin = salonInicioMin; currentMin + duracionServicioMin <= salonFinMin; currentMin += STEP_MINUTES) {
+      if (currentMin < minimoInicioMin) continue;
       const slotFinMin = currentMin + duracionServicioMin;
 
       // Evaluar si el slot candidato choca con alguna ocupación

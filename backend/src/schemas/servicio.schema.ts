@@ -1,21 +1,26 @@
 import { z } from 'zod';
+import { uuidSchema } from './common.schema';
+
+const nombre = z.string().trim().min(2, 'El nombre debe tener al menos 2 caracteres').max(80);
+const descripcion = z.string().trim().max(500).optional();
+const duracion = z.number().int().min(10, 'La duración mínima es de 10 minutos').max(480, 'La duración máxima es de 8 horas');
 
 export const createServicioSchema = z.object({
   body: z.object({
-    nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-    descripcion: z.string().optional(),
-    duracionMinutos: z.number().int().min(10, 'La duración mínima es de 10 minutos')
+    nombre,
+    descripcion,
+    duracionMinutos: duracion
   })
 });
 
 export const updateServicioSchema = z.object({
   params: z.object({
-    id: z.string().uuid('ID de servicio no válido')
+    id: uuidSchema
   }),
   body: z.object({
-    nombre: z.string().min(2).optional(),
-    descripcion: z.string().optional(),
-    duracionMinutos: z.number().int().min(10).optional(),
+    nombre: nombre.optional(),
+    descripcion,
+    duracionMinutos: duracion.optional(),
     activo: z.boolean().optional()
   })
 });

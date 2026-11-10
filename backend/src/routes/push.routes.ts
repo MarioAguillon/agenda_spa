@@ -1,16 +1,23 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { pushNotificationService } from '../services/push-notification.service';
-import { authMiddleware } from '../middlewares/auth.middleware';
+import { authMiddleware, AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 const router = Router();
 
 // POST /api/push/subscribe - Guardar suscripción Push (requiere autenticación)
-router.post('/subscribe', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/subscribe', authMiddleware, async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
-    const usuarioId = (req as any).usuario.id;
+    const usuarioId = req.user!.id;
     const { subscription } = req.body;
 
-    if (!subscription || !subscription.endpoint || !subscription.keys) {
+    if (
+      !subscription ||
+      typeof subscription.endpoint !== 'string' ||
+      !subscription.endpoint.startsWith('https://') ||
+      subscription.endpoint.length > 1000 ||
+      typeof subscription.keys?.p256dh !== 'string' ||
+      typeof subscription.keys?.auth !== 'string'
+    ) {
       res.status(400).json({ status: 'error', message: 'Suscripción inválida' });
       return;
     }
@@ -31,7 +38,7 @@ router.post('/unsubscribe', authMiddleware, async (req: Request, res: Response, 
   try {
     const { endpoint } = req.body;
 
-    if (!endpoint) {
+    if (typeof endpoint !== 'string' || !endpoint) {
       res.status(400).json({ status: 'error', message: 'Endpoint requerido' });
       return;
     }

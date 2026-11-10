@@ -3,7 +3,7 @@ import { citasController } from '../controllers/citas.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { validateMiddleware } from '../middlewares/validate.middleware';
 import { bookingLimiter } from '../middlewares/rate-limit.middleware';
-import { createCitaOnlineSchema, createCitaManualSchema, updateEstadoCitaSchema } from '../schemas/cita.schema';
+import { createCitaOnlineSchema, createCitaManualSchema, updateEstadoCitaSchema, getCitasRangoSchema } from '../schemas/cita.schema';
 
 const router = Router();
 
@@ -26,6 +26,7 @@ router.post(
 router.get(
   '/',
   authMiddleware,
+  validateMiddleware(getCitasRangoSchema),
   (req, res, next) => citasController.getRango(req, res, next)
 );
 

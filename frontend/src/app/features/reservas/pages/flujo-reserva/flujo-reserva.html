@@ -135,17 +135,20 @@
         <!-- Formulario inline -->
         <div class="elegant-form">
           <div class="elegant-input-group">
-            <input type="text" [(ngModel)]="personaActivaData.nombre" placeholder="NOMBRE" class="elegant-input" autocomplete="off" />
+            <input type="text" [(ngModel)]="personaActivaData.nombre" placeholder="NOMBRE" maxlength="40" class="elegant-input" autocomplete="given-name" />
             <span class="edit-icon">✎</span>
           </div>
           <div class="elegant-input-group">
-            <input type="text" [(ngModel)]="personaActivaData.apellido" placeholder="APELLIDO" class="elegant-input" autocomplete="off" />
+            <input type="text" [(ngModel)]="personaActivaData.apellido" placeholder="APELLIDO" maxlength="40" class="elegant-input" autocomplete="family-name" />
             <span class="edit-icon">✎</span>
           </div>
           <div class="elegant-input-group">
-            <input type="tel" [(ngModel)]="personaActivaData.celular" placeholder="CELULAR" class="elegant-input" autocomplete="off" />
+            <input type="tel" inputmode="tel" maxlength="20" [(ngModel)]="personaActivaData.celular" placeholder="CELULAR" class="elegant-input" autocomplete="tel" />
             <span class="edit-icon">✎</span>
           </div>
+          <p class="campo-error" *ngIf="personaActivaData.celular && !esCelularValido(personaActivaData.celular)">
+            Ingresa un celular válido (solo números, ej. 300 123 4567).
+          </p>
         </div>
       </section>
 

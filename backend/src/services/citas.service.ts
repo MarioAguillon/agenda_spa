@@ -1,70 +1,52 @@
-import { prisma } from '../config/database';
 import { negociosRepository } from '../repositories/negocios.repository';
 import { serviciosRepository } from '../repositories/servicios.repository';
-import { clientesRepository } from '../repositories/clientes.repository';
 import { citasRepository } from '../repositories/citas.repository';
 import { AppError } from '../middlewares/error.middleware';
-import { timeToMinutes, minutesToTime, isOverlapping } from '../utils/date-helpers';
+import { timeToMinutes, minutesToTime, fechaADate } from '../utils/date-helpers';
 import { CreateCitaOnlineInput, CreateCitaManualInput } from '../schemas/cita.schema';
 import { EstadoCita, OrigenCita } from '@prisma/client';
 import { pushNotificationService } from './push-notification.service';
+import {
+  validarReglasReservaOnline,
+  validarRangoDelDia,
+  verificarSinCruces,
+  enTransaccionSerializable
+} from './reglas-agenda.service';
+
+const citaInclude = { cliente: true, servicios: true } as const;
 
 export class CitasService {
-  async createCitaOnline(input: CreateCitaOnlineInput) {
+  private async obtenerNegocio() {
     const negocio = await negociosRepository.getFirstNegocio();
     if (!negocio) throw new AppError('Negocio no encontrado', 404);
+    return negocio;
+  }
 
-    const servicios = await serviciosRepository.findByIds(input.servicioIds);
-    if (!servicios || servicios.length === 0 || servicios.some(s => !s.activo)) {
+  private async obtenerServicios(ids: string[], soloActivos: boolean) {
+    const unicos = [...new Set(ids)];
+    const servicios = await serviciosRepository.findByIds(unicos);
+    if (servicios.length !== unicos.length || (soloActivos && servicios.some(s => !s.activo))) {
       throw new AppError('Uno o más servicios seleccionados no están disponibles', 404);
     }
+    return servicios;
+  }
+
+  async createCitaOnline(input: CreateCitaOnlineInput) {
+    const negocio = await this.obtenerNegocio();
+    const servicios = await this.obtenerServicios(input.servicioIds, true);
 
     const duracionMin = servicios.reduce((sum, s) => sum + s.duracionMinutos, 0);
     const inicioMin = timeToMinutes(input.horaInicio);
     const finMin = inicioMin + duracionMin;
-    const horaFinStr = minutesToTime(finMin);
-    const fechaObj = new Date(input.fecha + 'T00:00:00.000Z');
+    validarRangoDelDia(finMin);
+    await validarReglasReservaOnline(negocio.id, input.fecha, inicioMin, finMin);
 
-    // Transacción atómica para evitar Double-Booking
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Verificar solapamiento con citas existentes
-      const citasExistentes = await tx.cita.findMany({
-        where: {
-          negocioId: negocio.id,
-          fecha: fechaObj,
-          estado: { not: EstadoCita.CANCELADA }
-        }
-      });
+    const fechaObj = fechaADate(input.fecha);
 
-      const solapadoCita = citasExistentes.some(c => {
-        const cInicio = timeToMinutes(c.horaInicio);
-        const cFin = timeToMinutes(c.horaFin);
-        return isOverlapping(inicioMin, finMin, cInicio, cFin);
-      });
+    const result = await enTransaccionSerializable(async (tx) => {
+      await verificarSinCruces(tx, negocio.id, fechaObj, inicioMin, finMin);
 
-      if (solapadoCita) {
-        throw new AppError('El horario seleccionado acaba de ser reservado por otro cliente. Por favor elige otro horario.', 409);
-      }
-
-      // 2. Verificar solapamiento con bloqueos
-      const bloqueosExistentes = await tx.bloqueoHorario.findMany({
-        where: {
-          negocioId: negocio.id,
-          fecha: fechaObj
-        }
-      });
-
-      const solapadoBloqueo = bloqueosExistentes.some(b => {
-        const bInicio = timeToMinutes(b.horaInicio);
-        const bFin = timeToMinutes(b.horaFin);
-        return isOverlapping(inicioMin, finMin, bInicio, bFin);
-      });
-
-      if (solapadoBloqueo) {
-        throw new AppError('El horario seleccionado está bloqueado por el salón.', 409);
-      }
-
-      // 3. Obtener o crear Cliente por teléfono
+      // Obtener o crear Cliente por teléfono (ya normalizado por el schema)
       let cliente = await tx.cliente.findFirst({
         where: { negocioId: negocio.id, telefono: input.cliente.telefono }
       });
@@ -80,7 +62,6 @@ export class CitasService {
         });
       }
 
-      // 4. Crear la Cita (origen: ONLINE)
       const cita = await tx.cita.create({
         data: {
           negocioId: negocio.id,
@@ -88,18 +69,14 @@ export class CitasService {
           servicios: { connect: servicios.map(s => ({ id: s.id })) },
           fecha: fechaObj,
           horaInicio: input.horaInicio,
-          horaFin: horaFinStr,
+          horaFin: minutesToTime(finMin),
           estado: EstadoCita.CONFIRMADA,
           origen: OrigenCita.ONLINE,
           notas: input.notas
         },
-        include: {
-          cliente: true,
-          servicios: true
-        }
+        include: citaInclude
       });
 
-      // 5. Registrar notificación pendiente
       await tx.notificacion.create({
         data: {
           citaId: cita.id,
@@ -113,10 +90,9 @@ export class CitasService {
     });
 
     // Fuera de la transacción: enviar notificación Push a Claudia (no bloqueante)
-    const serviciosText = servicios.map(s => s.nombre).join(', ');
     pushNotificationService.notificarNuevaReserva({
       clienteNombre: input.cliente.nombre,
-      servicios: serviciosText,
+      servicios: servicios.map(s => s.nombre).join(', '),
       fecha: input.fecha,
       hora: input.horaInicio
     }).catch(err => console.error('[PUSH] Error al notificar:', err.message));
@@ -125,49 +101,63 @@ export class CitasService {
   }
 
   async createCitaManual(input: CreateCitaManualInput) {
-    const negocio = await negociosRepository.getFirstNegocio();
-    if (!negocio) throw new AppError('Negocio no encontrado', 404);
-
-    const servicios = await serviciosRepository.findByIds(input.servicioIds);
-    if (!servicios || servicios.length === 0) throw new AppError('Servicios no encontrados', 404);
+    const negocio = await this.obtenerNegocio();
+    // Desde el panel se permite agendar servicios inactivos (p. ej. promociones retiradas)
+    const servicios = await this.obtenerServicios(input.servicioIds, false);
 
     const duracionMin = servicios.reduce((sum, s) => sum + s.duracionMinutos, 0);
     const inicioMin = timeToMinutes(input.horaInicio);
     const finMin = inicioMin + duracionMin;
-    const horaFinStr = minutesToTime(finMin);
-    const fechaObj = new Date(input.fecha + 'T00:00:00.000Z');
+    validarRangoDelDia(finMin);
 
-    let clienteId = input.clienteId;
-
-    if (!clienteId && input.clienteNuevo) {
-      const cliente = await clientesRepository.upsertByTelefono(negocio.id, input.clienteNuevo);
-      clienteId = cliente.id;
-    }
-
-    if (!clienteId) {
+    if (!input.clienteId && !input.clienteNuevo) {
       throw new AppError('Debe proporcionar una clienta existente o registrar una nueva', 400);
     }
 
-    return citasRepository.create({
-      negocioId: negocio.id,
-      clienteId: clienteId,
-      servicioIds: input.servicioIds,
-      fecha: fechaObj,
-      horaInicio: input.horaInicio,
-      horaFin: horaFinStr,
-      origen: OrigenCita.DASHBOARD,
-      notas: input.notas
+    const fechaObj = fechaADate(input.fecha);
+
+    return enTransaccionSerializable(async (tx) => {
+      // Las citas manuales tampoco pueden cruzarse con otras citas o bloqueos
+      await verificarSinCruces(tx, negocio.id, fechaObj, inicioMin, finMin);
+
+      let clienteId = input.clienteId;
+      if (clienteId) {
+        const existe = await tx.cliente.findFirst({ where: { id: clienteId, negocioId: negocio.id } });
+        if (!existe) throw new AppError('Clienta no encontrada', 404);
+      } else if (input.clienteNuevo) {
+        const datos = input.clienteNuevo;
+        const existente = await tx.cliente.findFirst({ where: { negocioId: negocio.id, telefono: datos.telefono } });
+        const cliente = existente
+          ? await tx.cliente.update({
+              where: { id: existente.id },
+              data: { nombre: datos.nombre, email: datos.email || existente.email }
+            })
+          : await tx.cliente.create({
+              data: { negocioId: negocio.id, nombre: datos.nombre, telefono: datos.telefono, email: datos.email || null }
+            });
+        clienteId = cliente.id;
+      }
+
+      return tx.cita.create({
+        data: {
+          negocioId: negocio.id,
+          clienteId: clienteId!,
+          servicios: { connect: servicios.map(s => ({ id: s.id })) },
+          fecha: fechaObj,
+          horaInicio: input.horaInicio,
+          horaFin: minutesToTime(finMin),
+          estado: EstadoCita.CONFIRMADA,
+          origen: OrigenCita.DASHBOARD,
+          notas: input.notas
+        },
+        include: citaInclude
+      });
     });
   }
 
   async getCitasByRange(fechaInicioStr: string, fechaFinStr: string) {
-    const negocio = await negociosRepository.getFirstNegocio();
-    if (!negocio) throw new AppError('Negocio no encontrado', 404);
-
-    const inicioObj = new Date(fechaInicioStr + 'T00:00:00.000Z');
-    const finObj = new Date(fechaFinStr + 'T23:59:59.999Z');
-
-    return citasRepository.findRangoFechas(negocio.id, inicioObj, finObj);
+    const negocio = await this.obtenerNegocio();
+    return citasRepository.findRangoFechas(negocio.id, fechaADate(fechaInicioStr), fechaADate(fechaFinStr));
   }
 
   async updateEstado(id: string, estado: EstadoCita) {

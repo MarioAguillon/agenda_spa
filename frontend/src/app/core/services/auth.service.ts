@@ -32,8 +32,24 @@ export class AuthService {
     this.checkStoredSession();
   }
 
+  /** Hay sesión si existe un token y no ha expirado (se lee el campo exp del JWT). */
   public isAuthenticated(): boolean {
-    return !!localStorage.getItem(this.TOKEN_KEY);
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (!token) return false;
+    if (this.tokenExpirado(token)) {
+      localStorage.removeItem(this.TOKEN_KEY);
+      return false;
+    }
+    return true;
+  }
+
+  private tokenExpirado(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof payload.exp !== 'number' || payload.exp * 1000 <= Date.now();
+    } catch {
+      return true;
+    }
   }
 
   public getToken(): string | null {
@@ -61,16 +77,18 @@ export class AuthService {
   }
 
   private checkStoredSession(): void {
-    const token = this.getToken();
-    if (token) {
+    if (this.isAuthenticated()) {
       this.http.get<{ status: string; data: UserProfile }>(API_ENDPOINTS.AUTH.ME).subscribe({
         next: (res) => {
           if (res.status === 'success') {
             this.currentUser.set(res.data);
           }
         },
-        error: () => {
-          this.logout();
+        error: (err) => {
+          // Solo cerrar sesión si el servidor rechaza el token; un fallo de red no debe expulsar a la usuaria
+          if (err?.status === 401 || err?.status === 404) {
+            this.logout();
+          }
         }
       });
     }

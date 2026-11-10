@@ -751,3 +751,9 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.campo-error {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: -0.25rem;
+}

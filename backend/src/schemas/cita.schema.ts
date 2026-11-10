@@ -1,42 +1,57 @@
 import { z } from 'zod';
 import { EstadoCita } from '@prisma/client';
+import {
+  fechaSchema, horaSchema, uuidSchema, nombreSchema, telefonoSchema,
+  emailOpcionalSchema, notasSchema, servicioIdsSchema
+} from './common.schema';
 
 export const createCitaOnlineSchema = z.object({
   body: z.object({
-    servicioIds: z.array(z.string().uuid('ID de servicio no válido')).min(1, 'Debe seleccionar al menos un servicio'),
-    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha debe ser YYYY-MM-DD'),
-    horaInicio: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Formato de hora inicio debe ser HH:mm'),
+    servicioIds: servicioIdsSchema,
+    fecha: fechaSchema,
+    horaInicio: horaSchema,
     cliente: z.object({
-      nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-      telefono: z.string().min(7, 'El teléfono debe tener al menos 7 dígitos'),
-      email: z.string().email('Email no válido').optional().or(z.literal(''))
+      nombre: nombreSchema,
+      telefono: telefonoSchema,
+      email: emailOpcionalSchema
     }),
-    notas: z.string().optional()
+    notas: notasSchema
   })
 });
 
 export const createCitaManualSchema = z.object({
   body: z.object({
-    servicioIds: z.array(z.string().uuid('ID de servicio no válido')).min(1, 'Debe seleccionar al menos un servicio'),
-    fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha debe ser YYYY-MM-DD'),
-    horaInicio: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Formato de hora inicio debe ser HH:mm'),
-    clienteId: z.string().uuid().optional(),
+    servicioIds: servicioIdsSchema,
+    fecha: fechaSchema,
+    horaInicio: horaSchema,
+    clienteId: uuidSchema.optional(),
     clienteNuevo: z.object({
-      nombre: z.string().min(2),
-      telefono: z.string().min(7),
-      email: z.string().email().optional().or(z.literal(''))
+      nombre: nombreSchema,
+      telefono: telefonoSchema,
+      email: emailOpcionalSchema
     }).optional(),
-    notas: z.string().optional()
+    notas: notasSchema
   })
 });
 
 export const updateEstadoCitaSchema = z.object({
   params: z.object({
-    id: z.string().uuid('ID de cita no válido')
+    id: uuidSchema
   }),
   body: z.object({
     estado: z.nativeEnum(EstadoCita)
   })
+});
+
+export const getCitasRangoSchema = z.object({
+  query: z.object({
+    fechaInicio: fechaSchema,
+    fechaFin: fechaSchema
+  }).refine(q => q.fechaFin >= q.fechaInicio, 'fechaFin debe ser igual o posterior a fechaInicio')
+    .refine(q => {
+      const dias = (Date.parse(q.fechaFin) - Date.parse(q.fechaInicio)) / 86_400_000;
+      return dias <= 92;
+    }, 'El rango máximo de consulta es de 92 días')
 });
 
 export type CreateCitaOnlineInput = z.infer<typeof createCitaOnlineSchema>['body'];

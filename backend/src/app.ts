@@ -17,14 +17,20 @@ import pushRoutes from './routes/push.routes';
 export const createApp = (): Express => {
   const app: Express = express();
 
+  // Detrás del proxy de Render/Vercel: necesario para que el rate-limit use la IP real
+  app.set('trust proxy', 1);
+
   // Middlewares de Seguridad
   app.use(helmet());
+  const origenesPermitidos = ENV.IS_PRODUCTION
+    ? [ENV.CLIENT_URL]
+    : [ENV.CLIENT_URL, 'http://localhost:4200'];
   app.use(cors({
-    origin: [ENV.CLIENT_URL, 'http://localhost:4200'],
+    origin: origenesPermitidos,
     credentials: true
   }));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: '20kb' }));
+  app.use(express.urlencoded({ extended: false, limit: '20kb' }));
 
   // Rate Limiting
   app.use('/api', apiLimiter);

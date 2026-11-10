@@ -177,8 +177,20 @@ export class FlujoReservaComponent implements OnInit {
     return this.personas[this.personaActiva];
   }
 
+  /** Celular válido: solo números/espacios/guiones/+ y entre 7 y 12 dígitos (igual que el backend). */
+  esCelularValido(celular: string): boolean {
+    const limpio = celular.trim();
+    if (!/^\+?[\d\s().-]+$/.test(limpio)) return false;
+    const digitos = limpio.replace(/\D/g, '');
+    return digitos.length >= 7 && digitos.length <= 12;
+  }
+
   get datosPersonasCompletos(): boolean {
-    return this.personas.every(p => p.nombre.trim() !== '' && p.celular.trim() !== '');
+    return this.personas.every(p =>
+      p.nombre.trim().length >= 2 && p.nombre.trim().length <= 40 &&
+      p.apellido.trim().length <= 40 &&
+      this.esCelularValido(p.celular)
+    );
   }
 
   // -- Paso 3: Servicios --
@@ -286,8 +298,8 @@ export class FlujoReservaComponent implements OnInit {
       fecha: this.selectedFecha,
       horaInicio: this.selectedHora,
       cliente: {
-        nombre: this.personas[0].nombre + ' ' + this.personas[0].apellido,
-        telefono: this.personas[0].celular,
+        nombre: `${this.personas[0].nombre.trim()} ${this.personas[0].apellido.trim()}`.trim(),
+        telefono: this.personas[0].celular.trim(),
         email: ''
       }
     }).subscribe({

@@ -12,6 +12,23 @@ export class AppError extends Error {
   }
 }
 
+/** Traduce errores conocidos (Prisma, body-parser) a respuestas seguras para el cliente. */
+function normalizarError(err: any): { statusCode: number; message: string } {
+  if (err instanceof AppError) {
+    return { statusCode: err.statusCode, message: err.message };
+  }
+  switch (err?.code) {
+    case 'P2025': return { statusCode: 404, message: 'Recurso no encontrado' };
+    case 'P2002': return { statusCode: 409, message: 'El registro ya existe' };
+    case 'P2003': return { statusCode: 409, message: 'El registro está relacionado con otros datos' };
+    case 'P2034': return { statusCode: 409, message: 'El horario acaba de ser tomado. Por favor elige otro.' };
+  }
+  if (err?.type === 'entity.parse.failed') return { statusCode: 400, message: 'JSON inválido' };
+  if (err?.type === 'entity.too.large') return { statusCode: 413, message: 'La solicitud es demasiado grande' };
+  // Nunca exponer mensajes internos (SQL, Prisma, rutas de archivos) al cliente
+  return { statusCode: 500, message: 'Error interno del servidor' };
+}
+
 export const errorMiddleware = (
   err: Error | AppError,
   req: Request,
@@ -19,15 +36,18 @@ export const errorMiddleware = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction
 ): void => {
-  const statusCode = err instanceof AppError ? err.statusCode : 500;
-  const message = err.message || 'Error interno del servidor';
+  const { statusCode, message } = normalizarError(err);
 
-  console.error(`[ERROR] ${req.method} ${req.path} - ${statusCode}: ${message}`);
+  if (statusCode >= 500) {
+    console.error(`[ERROR] ${req.method} ${req.path} - ${statusCode}:`, err);
+  } else {
+    console.warn(`[WARN] ${req.method} ${req.path} - ${statusCode}: ${message}`);
+  }
 
   res.status(statusCode).json({
     status: 'error',
     statusCode,
     message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    ...(process.env.NODE_ENV === 'development' && statusCode >= 500 && { stack: err.stack })
   });
 };
