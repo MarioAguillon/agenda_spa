@@ -17,7 +17,7 @@ Arquitectura en producción:
 1. Entra a <https://neon.tech> y crea una cuenta (puedes usar tu cuenta de GitHub).
 2. **Create project**:
    - Nombre: `claudia-santana-nails`
-   - Región: **AWS US East (N. Virginia)** (la más cercana a Colombia y a Render).
+   - Región: **AWS US East 2 (Ohio)** (la misma región del backend en Render).
 3. En el panel del proyecto toca **Connect**.
    - Desactiva **Connection pooling** (las migraciones necesitan la conexión directa).
    - Copia la cadena que empieza por `postgresql://...` y termina en `?sslmode=require`.

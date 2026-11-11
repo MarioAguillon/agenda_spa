@@ -6,7 +6,7 @@ services:
     name: claudia-santana-api
     runtime: node
     plan: free
-    region: virginia
+    region: ohio
     rootDir: backend
     buildCommand: npm ci --include=dev && npm run build
     # Aplica migraciones, verifica datos iniciales y arranca el servidor
