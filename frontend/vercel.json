@@ -5,11 +5,15 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/claudia-santana-nails/browser",
   "rewrites": [
-    { "source": "/((?!.*\.).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
-      "source": "/(ngsw-worker.js|ngsw.json|safety-worker.js|worker-basic.min.js)",
+      "source": "/ngsw-worker.js",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    },
+    {
+      "source": "/ngsw.json",
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     },
     {
