@@ -1,0 +1,45 @@
+# Blueprint de Render para el backend (API) de Claudia Santana Nails.
+# En Render: New + → Blueprint → elegir este repositorio.
+# La base de datos PostgreSQL se crea aparte en Neon (gratis y sin vencimiento).
+services:
+  - type: web
+    name: claudia-santana-api
+    runtime: node
+    plan: free
+    region: virginia
+    rootDir: backend
+    buildCommand: npm ci --include=dev && npm run build
+    # Aplica migraciones, verifica datos iniciales y arranca el servidor
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "20"
+      - key: TIMEZONE
+        value: America/Bogota
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 12h
+      - key: MAX_DIAS_ANTICIPACION
+        value: "90"
+      - key: SALON_PHONE_NUMBER
+        value: "573184642772"
+      # Se completan a mano en el panel de Render (no se guardan en GitHub)
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false

@@ -59,7 +59,7 @@ router.get('/vapid-key', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'success',
     data: {
-      publicKey: process.env.VAPID_PUBLIC_KEY
+      publicKey: process.env.VAPID_PUBLIC_KEY || null
     }
   });
 });

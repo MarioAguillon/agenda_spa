@@ -67,4 +67,4 @@ Consulta la carpeta [`docs/`](docs/) para ver detalles sobre:
 * [`frontend.md`](docs/frontend.md): Guía de componentes Standalone y estilos.
 * [`backend.md`](docs/backend.md): Estructura en capas del backend.
 * [`whatsapp.md`](docs/whatsapp.md): Flujo de notificaciones por WhatsApp.
-* [`deployment.md`](docs/deployment.md): Guía de despliegue en Vercel y Render.
+* [`deployment.md`](docs/deployment.md): **Guía paso a paso** para publicar (Neon + Render + Vercel) e instalar la PWA.

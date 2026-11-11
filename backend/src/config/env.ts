@@ -33,6 +33,11 @@ export const ENV = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '12h',
   SALON_PHONE_NUMBER: process.env.SALON_PHONE_NUMBER || '573184642772',
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:4200',
+  /** Orígenes permitidos por CORS. CLIENT_URL acepta varios separados por coma. */
+  CLIENT_URLS: (process.env.CLIENT_URL || 'http://localhost:4200')
+    .split(',')
+    .map(u => u.trim().replace(/\/$/, ''))
+    .filter(Boolean),
   /** Cuántos días hacia adelante se permite reservar online */
   MAX_DIAS_ANTICIPACION: parseInt(process.env.MAX_DIAS_ANTICIPACION || '90', 10)
 };

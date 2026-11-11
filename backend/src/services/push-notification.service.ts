@@ -1,12 +1,22 @@
 import webpush from 'web-push';
 import { prisma } from '../config/database';
 
-// Configurar VAPID keys
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT || 'mailto:admin@claudiasantana.com',
-  process.env.VAPID_PUBLIC_KEY || '',
-  process.env.VAPID_PRIVATE_KEY || ''
-);
+// Las notificaciones push son opcionales: sin claves VAPID el servidor arranca igual
+export const PUSH_HABILITADO = Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
+
+if (PUSH_HABILITADO) {
+  try {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT || 'mailto:notificaciones@claudiasantananails.com',
+      process.env.VAPID_PUBLIC_KEY!,
+      process.env.VAPID_PRIVATE_KEY!
+    );
+  } catch (error: any) {
+    console.error('[PUSH] Claves VAPID inválidas, notificaciones desactivadas:', error.message);
+  }
+} else {
+  console.warn('[PUSH] Sin claves VAPID: las notificaciones push están desactivadas.');
+}
 
 export class PushNotificationService {
 
@@ -48,6 +58,9 @@ export class PushNotificationService {
     fecha: string;
     hora: string;
   }) {
+    if (!PUSH_HABILITADO) {
+      return { exitosas: 0, fallidas: 0, total: 0 };
+    }
     const payload = JSON.stringify({
       title: '💅 ¡Nueva Reserva!',
       body: `${datos.clienteNombre} agendó: ${datos.servicios} para el ${datos.fecha} a las ${datos.hora}`,

@@ -4,6 +4,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { PushNotificacionService } from '../../../core/services/push-notificacion.service';
 import { IconComponent } from '../../../shared/components/icon/icon';
+import { InstalarAppService } from '../../../core/services/instalar-app.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -22,7 +23,8 @@ export class DashboardLayoutComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private pushService: PushNotificacionService
+    private pushService: PushNotificacionService,
+    public instalarApp: InstalarAppService
   ) {}
 
   get primerNombre(): string {

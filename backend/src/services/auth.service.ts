@@ -7,7 +7,7 @@ import { LoginInput } from '../schemas/auth.schema';
 
 export class AuthService {
   async login(input: LoginInput) {
-    const usuario = await usuariosRepository.findByEmail(input.email);
+    const usuario = await usuariosRepository.findByEmail(input.email.trim().toLowerCase());
     if (!usuario || !usuario.activo) {
       throw new AppError('Credenciales incorrectas o usuario inactivo', 401);
     }

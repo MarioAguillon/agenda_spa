@@ -4,13 +4,15 @@
   "description": "Backend API para Claudia Santana Nails - Sistema de Reservas",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
     "prisma:push": "prisma db push --schema=prisma/schema.prisma",
-    "prisma:seed": "tsx prisma/seeds/seed.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "start:prod": "prisma migrate deploy && node dist/scripts/seed.js && node dist/server.js",
+    "seed": "tsx src/scripts/seed.ts",
+    "prisma:migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
@@ -35,5 +37,8 @@
     "tsx": "^4.10.5",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

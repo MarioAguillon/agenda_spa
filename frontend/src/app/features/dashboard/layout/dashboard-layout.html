@@ -22,6 +22,22 @@
     </div>
   </header>
 
+  <!-- Aviso para instalar la agenda en el celular -->
+  <div class="instalar" *ngIf="instalarApp.mostrarAviso" role="region" aria-label="Instalar la app">
+    <img src="/icons/icon-96x96.png" alt="" width="44" height="44" class="instalar-icono" />
+    <div class="instalar-texto">
+      <p class="instalar-titulo">Instala tu agenda en el celular</p>
+      <p class="instalar-sub" *ngIf="instalarApp.puedeInstalar()">Ábrela como una app, sin buscar la página.</p>
+      <p class="instalar-sub" *ngIf="!instalarApp.puedeInstalar() && instalarApp.esIOS">
+        En Safari toca <strong>Compartir</strong> y luego <strong>Agregar a inicio</strong>.
+      </p>
+    </div>
+    <button *ngIf="instalarApp.puedeInstalar()" type="button" class="btn btn-gold instalar-btn" (click)="instalarApp.instalar()">Instalar</button>
+    <button type="button" class="instalar-cerrar" (click)="instalarApp.ocultar()" aria-label="Ocultar aviso">
+      <app-icon name="x" [size]="18" />
+    </button>
+  </div>
+
   <main class="panel-cuerpo">
     <router-outlet></router-outlet>
   </main>

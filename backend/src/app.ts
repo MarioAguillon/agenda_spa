@@ -23,8 +23,8 @@ export const createApp = (): Express => {
   // Middlewares de Seguridad
   app.use(helmet());
   const origenesPermitidos = ENV.IS_PRODUCTION
-    ? [ENV.CLIENT_URL]
-    : [ENV.CLIENT_URL, 'http://localhost:4200'];
+    ? ENV.CLIENT_URLS
+    : [...ENV.CLIENT_URLS, 'http://localhost:4200'];
   app.use(cors({
     origin: origenesPermitidos,
     credentials: true
