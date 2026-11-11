@@ -1,347 +1,372 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ReservasService, DisponibilidadSlot } from '../../services/reservas.service';
 import { Servicio } from '../../../../core/models/servicio.model';
-import { CalendarioComponent } from './components/calendario/calendario';
-import { HorariosSlotsComponent } from './components/horarios/horarios';
-import { ButtonComponent } from '../../../../shared/components/button/button';
-import { LoadingComponent } from '../../../../shared/components/loading/loading';
+import { HorarioNegocio } from '../../../../core/models/horario.model';
+import { IconComponent } from '../../../../shared/components/icon/icon';
+import { SALON } from '../../../../core/constants/salon';
+import {
+  aFechaISO, desdeFechaISO, nombreDiaCorto, nombreMes, fechaLarga, hora12, duracionTexto, sumarMinutos
+} from '../../../../core/utils/formato';
 
-export interface ClientePersona {
-  nombre: string;
-  apellido: string;
-  celular: string;
+interface DiaOpcion {
+  iso: string;
+  diaCorto: string;
+  numero: number;
+  mes: string;
+  abierto: boolean;
+  esHoy: boolean;
 }
+
+interface GrupoHorario {
+  nombre: string;
+  icono: string;
+  slots: DisponibilidadSlot[];
+}
+
+type Paso = 1 | 2 | 3;
+
+const ORDEN_CATEGORIAS = ['Manicure', 'Pedicure', 'Depilación'];
+const ICONO_CATEGORIA: Record<string, string> = {
+  Manicure: 'sparkles',
+  Pedicure: 'footprints',
+  'Depilación': 'leaf'
+};
+const DIAS_VISIBLES = 21;
+const CLAVE_DATOS = 'csn_datos_clienta';
 
 @Component({
   selector: 'app-flujo-reserva',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CalendarioComponent,
-    HorariosSlotsComponent,
-    ButtonComponent,
-    LoadingComponent
-  ],
+  imports: [CommonModule, FormsModule, RouterLink, IconComponent],
   templateUrl: './flujo-reserva.html',
   styleUrl: './flujo-reserva.css'
 })
 export class FlujoReservaComponent implements OnInit {
-  currentStep: number = 1; // 1: Dia, 2: Datos, 3: Servicios, 4: Profesional, 5: Hora
+  private reservasService = inject(ReservasService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  // Paso 1: Dia
-  tipoFechaSeleccionada: 'HOY' | 'MANANA' | 'OTRA' | null = null;
-  mostrarCalendario: boolean = false;
-  selectedFecha: string = '';
-  selectedFechaDisplay: string = '';
+  readonly salon = SALON;
+  readonly pasos = ['Servicios', 'Fecha y hora', 'Tus datos'];
+  paso: Paso = 1;
 
-  // Paso 2: Datos
-  cantidadPersonas: number = 1;
-  personaActiva: number = 0;
-  personas: ClientePersona[] = [{ nombre: '', apellido: '', celular: '' }];
-
-  // Paso 3: Servicios
+  // Paso 1 — servicios
   servicios: Servicio[] = [];
-  isLoadingServicios: boolean = true;
-  selectedServicios: Servicio[] = [];
-  serviciosPorCategoria: { [categoria: string]: Servicio[] } = {};
-  categoriaActiva: string | null = null;
-  categoriasOrdenadas = ['Manicure', 'Pedicure', 'Depilación'];
+  categorias: string[] = [];
+  categoriaActiva = '';
+  seleccionados: Servicio[] = [];
+  cargandoServicios = true;
+  errorServicios = '';
 
-  // Paso 5: Hora
-  selectedHora: string = '';
-  slotsDisponibles: DisponibilidadSlot[] = [];
-  isLoadingSlots: boolean = false;
+  // Paso 2 — fecha y hora
+  horario: HorarioNegocio[] = [];
+  dias: DiaOpcion[] = [];
+  fecha = '';
+  hora = '';
+  grupos: GrupoHorario[] = [];
+  cargandoSlots = false;
+  errorSlots = '';
+  /** Aviso cuando la hora elegida se ocupó mientras la clienta completaba sus datos. */
+  avisoSlots = '';
 
-  hoyDisponible: boolean = true;
-  mananaDisponible: boolean = true;
+  // Paso 3 — datos
+  nombre = '';
+  celular = '';
+  notas = '';
+  recordarDatos = true;
+  intentoEnviar = false;
 
-  isSubmitting: boolean = false;
-  errorMessage: string = '';
-
-  constructor(
-    private reservasService: ReservasService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
+  enviando = false;
+  errorEnvio = '';
 
   ngOnInit(): void {
-    this.checkFechasRapidas();
+    this.cargarDatosGuardados();
     this.cargarServicios();
+    this.reservasService.getHorarioPublico().subscribe({
+      next: (res) => { this.horario = res.data; this.construirDias(); },
+      error: () => { this.horario = []; this.construirDias(); }
+    });
   }
 
-  checkFechasRapidas(): void {
-    const hoy = new Date();
-    if (hoy.getDay() === 0 || hoy.getHours() >= 18) {
-      this.hoyDisponible = false;
-    }
-
-    const manana = new Date();
-    manana.setDate(manana.getDate() + 1);
-    if (manana.getDay() === 0) {
-      this.mananaDisponible = false;
-    }
-  }
-
+  // ---------- Paso 1 ----------
   cargarServicios(): void {
-    this.isLoadingServicios = true;
+    this.cargandoServicios = true;
+    this.errorServicios = '';
     this.reservasService.getServiciosDisponibles().subscribe({
       next: (res) => {
         this.servicios = res.data;
-        this.isLoadingServicios = false;
-        this.agruparServicios();
+        const presentes = [...new Set(this.servicios.map(s => s.categoria || 'Otros'))];
+        this.categorias = [
+          ...ORDEN_CATEGORIAS.filter(c => presentes.includes(c)),
+          ...presentes.filter(c => !ORDEN_CATEGORIAS.includes(c)).sort()
+        ];
+        this.categoriaActiva = this.categorias[0] ?? '';
+        this.preseleccionarDesdeUrl();
+        this.cargandoServicios = false;
       },
-      error: (err) => {
-        console.error('Error al cargar servicios:', err);
-        this.isLoadingServicios = false;
+      error: () => {
+        this.cargandoServicios = false;
+        this.errorServicios = 'No pudimos cargar los servicios. Revisa tu conexión e intenta de nuevo.';
       }
     });
   }
 
-  agruparServicios(): void {
-    this.serviciosPorCategoria = {};
-    for (const s of this.servicios) {
-      if (!this.serviciosPorCategoria[s.categoria]) {
-        this.serviciosPorCategoria[s.categoria] = [];
+  private preseleccionarDesdeUrl(): void {
+    const id = this.route.snapshot.queryParamMap.get('servicioId');
+    const servicio = id ? this.servicios.find(s => s.id === id) : undefined;
+    if (servicio) {
+      this.seleccionados = [servicio];
+      this.categoriaActiva = servicio.categoria || this.categoriaActiva;
+    }
+  }
+
+  get serviciosDeCategoria(): Servicio[] {
+    return this.servicios.filter(s => (s.categoria || 'Otros') === this.categoriaActiva);
+  }
+
+  contarEnCategoria(cat: string): number {
+    return this.seleccionados.filter(s => (s.categoria || 'Otros') === cat).length;
+  }
+
+  iconoCategoria(cat: string): string {
+    return ICONO_CATEGORIA[cat] ?? 'flower';
+  }
+
+  estaSeleccionado(s: Servicio): boolean {
+    return this.seleccionados.some(x => x.id === s.id);
+  }
+
+  alternarServicio(s: Servicio): void {
+    this.seleccionados = this.estaSeleccionado(s)
+      ? this.seleccionados.filter(x => x.id !== s.id)
+      : [...this.seleccionados, s];
+    // Cambiar servicios cambia la duración: la hora elegida puede dejar de servir
+    this.hora = '';
+    this.grupos = [];
+  }
+
+  get duracionTotal(): number {
+    return this.seleccionados.reduce((t, s) => t + s.duracionMinutos, 0);
+  }
+
+  // ---------- Paso 2 ----------
+  private construirDias(): void {
+    const hoy = new Date();
+    const ahoraMin = hoy.getHours() * 60 + hoy.getMinutes();
+    this.dias = Array.from({ length: DIAS_VISIBLES }, (_, i) => {
+      const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i);
+      const h = this.horario.find(x => x.diaSemana === d.getDay());
+      let abierto = this.horario.length === 0 ? d.getDay() !== 0 : !!h?.activo;
+      if (abierto && i === 0 && h) {
+        const [hh, mm] = h.horaFin.split(':').map(Number);
+        abierto = ahoraMin < hh * 60 + mm - 30;
       }
-      this.serviciosPorCategoria[s.categoria].push(s);
-    }
+      return {
+        iso: aFechaISO(d),
+        diaCorto: i === 0 ? 'hoy' : nombreDiaCorto(d),
+        numero: d.getDate(),
+        mes: nombreMes(d),
+        abierto,
+        esHoy: i === 0
+      };
+    });
   }
 
-  // -- Paso 1 --
-  seleccionarTipoFecha(tipo: 'HOY' | 'MANANA' | 'OTRA'): void {
-    this.tipoFechaSeleccionada = tipo;
-    this.mostrarCalendario = tipo === 'OTRA';
-    if (tipo === 'HOY') {
-      const hoy = new Date();
-      this.selectedFecha = this.getFormattedDate(hoy);
-      this.selectedFechaDisplay = this.getDisplayDate(hoy);
-    } else if (tipo === 'MANANA') {
-      const manana = new Date();
-      manana.setDate(manana.getDate() + 1);
-      this.selectedFecha = this.getFormattedDate(manana);
-      this.selectedFechaDisplay = this.getDisplayDate(manana);
-    } else {
-      this.selectedFecha = '';
-      this.selectedFechaDisplay = '';
-    }
+  get mesVisible(): string {
+    const iso = this.fecha || this.dias[0]?.iso;
+    if (!iso) return '';
+    const d = desdeFechaISO(iso);
+    return `${nombreMes(d)} ${d.getFullYear()}`;
   }
 
-  onSelectFecha(fecha: string): void {
-    this.selectedFecha = fecha;
-    const parts = fecha.split('-');
-    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-    this.selectedFechaDisplay = this.getDisplayDate(d);
+  elegirDia(dia: DiaOpcion): void {
+    if (!dia.abierto) return;
+    this.avisoSlots = '';
+    this.fecha = dia.iso;
+    this.hora = '';
+    this.cargarSlots();
   }
 
-  getFormattedDate(date: Date): string {
-    const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-    return [year, month, day].join('-');
-  }
-
-  getDisplayDate(date: Date): string {
-    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-  }
-
-  // -- Paso 2: Personas --
-  incrementarPersonas(): void {
-    if (this.cantidadPersonas < 5) {
-      this.cantidadPersonas++;
-      this.personas.push({ nombre: '', apellido: '', celular: '' });
-    }
-  }
-
-  decrementarPersonas(): void {
-    if (this.cantidadPersonas > 1) {
-      this.cantidadPersonas--;
-      this.personas.pop();
-      if (this.personaActiva >= this.cantidadPersonas) {
-        this.personaActiva = this.cantidadPersonas - 1;
+  cargarSlots(): void {
+    if (!this.fecha || !this.seleccionados.length) return;
+    this.cargandoSlots = true;
+    this.errorSlots = '';
+    this.grupos = [];
+    this.reservasService.getDisponibilidadHorarios(this.seleccionados.map(s => s.id), this.fecha).subscribe({
+      next: (res) => {
+        const slots = res.data;
+        this.grupos = [
+          { nombre: 'Mañana', icono: 'sun', slots: slots.filter(s => s.horaInicio < '12:00') },
+          { nombre: 'Tarde', icono: 'sunset', slots: slots.filter(s => s.horaInicio >= '12:00' && s.horaInicio < '17:00') },
+          { nombre: 'Noche', icono: 'moon', slots: slots.filter(s => s.horaInicio >= '17:00') }
+        ].filter(g => g.slots.length);
+        this.cargandoSlots = false;
+      },
+      error: () => {
+        this.cargandoSlots = false;
+        this.errorSlots = 'No pudimos consultar los horarios. Intenta de nuevo.';
       }
-    }
+    });
   }
 
-  seleccionarPersona(index: number): void {
-    this.personaActiva = index;
+  elegirHora(slot: DisponibilidadSlot): void {
+    this.hora = slot.horaInicio;
+    this.avisoSlots = '';
   }
 
-  get personaActivaData(): ClientePersona {
-    return this.personas[this.personaActiva];
+  siguienteDiaAbierto(): void {
+    const idx = this.dias.findIndex(d => d.iso === this.fecha);
+    const sig = this.dias.slice(idx + 1).find(d => d.abierto);
+    if (sig) this.elegirDia(sig);
   }
 
-  /** Celular válido: solo números/espacios/guiones/+ y entre 7 y 12 dígitos (igual que el backend). */
-  esCelularValido(celular: string): boolean {
-    const limpio = celular.trim();
-    if (!/^\+?[\d\s().-]+$/.test(limpio)) return false;
-    const digitos = limpio.replace(/\D/g, '');
+  // ---------- Paso 3 ----------
+  get nombreValido(): boolean {
+    const n = this.nombre.trim();
+    return n.length >= 2 && n.length <= 80;
+  }
+
+  get celularValido(): boolean {
+    const c = this.celular.trim();
+    if (!/^\+?[\d\s().-]+$/.test(c)) return false;
+    const digitos = c.replace(/\D/g, '');
     return digitos.length >= 7 && digitos.length <= 12;
   }
 
-  get datosPersonasCompletos(): boolean {
-    return this.personas.every(p =>
-      p.nombre.trim().length >= 2 && p.nombre.trim().length <= 40 &&
-      p.apellido.trim().length <= 40 &&
-      this.esCelularValido(p.celular)
-    );
-  }
-
-  // -- Paso 3: Servicios --
-  toggleCategoria(cat: string): void {
-    if (this.categoriaActiva === cat) {
-      this.categoriaActiva = null;
-    } else {
-      this.categoriaActiva = cat;
-    }
-  }
-
-  toggleServicio(servicio: Servicio): void {
-    const index = this.selectedServicios.findIndex(s => s.id === servicio.id);
-    if (index > -1) {
-      this.selectedServicios.splice(index, 1);
-    } else {
-      this.selectedServicios.push(servicio);
-    }
-  }
-
-  isServicioSelected(servicio: Servicio): boolean {
-    return this.selectedServicios.some(s => s.id === servicio.id);
-  }
-
-  get isServiciosSelected(): boolean {
-    return this.selectedServicios.length > 0;
-  }
-
-
-  getIconForCategory(cat: string): string {
-    const icons: any = {
-      'Manicure': '💅',
-      'Pedicure': '🦶',
-      'Decoraciones': '✨',
-      'Tratamientos': '💆‍♀️',
-      'Depilación': '🕯️',
-      'Rituales': '🧘‍♀️',
-      'Retiros': '🧴'
-    };
-    return icons[cat] || '💅';
-  }
-
-  // -- Navegación Centralizada --
-  get canGoNext(): boolean {
-    switch (this.currentStep) {
-      case 1: return !!this.selectedFecha;
-      case 2: return this.datosPersonasCompletos;
-      case 3: return this.isServiciosSelected;
-      case 4: return true;
-      case 5: return !!this.selectedHora;
-      default: return false;
-    }
-  }
-
-  goNext(): void {
-    if (!this.canGoNext) return;
-
-    if (this.currentStep === 4) {
-      this.cargarDisponibilidad();
-      return;
-    }
-    if (this.currentStep === 5) {
-      this.confirmarReserva();
-      return;
-    }
-    this.currentStep++;
-  }
-
-  goBack(): void {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  // -- Paso 5: Hora --
-  cargarDisponibilidad(): void {
-    this.isLoadingSlots = true;
-    this.currentStep = 5;
-    const ids = this.selectedServicios.map(s => s.id);
-    this.reservasService.getDisponibilidadHorarios(ids, this.selectedFecha).subscribe({
-      next: (res) => {
-        this.slotsDisponibles = res.data;
-        this.isLoadingSlots = false;
-      },
-      error: (err) => {
-        console.error('Error al cargar horarios:', err);
-        this.isLoadingSlots = false;
+  private cargarDatosGuardados(): void {
+    try {
+      const raw = localStorage.getItem(CLAVE_DATOS);
+      if (raw) {
+        const datos = JSON.parse(raw);
+        this.nombre = typeof datos.nombre === 'string' ? datos.nombre : '';
+        this.celular = typeof datos.celular === 'string' ? datos.celular : '';
       }
-    });
+    } catch { /* almacenamiento no disponible: se ignora */ }
   }
 
-  onSelectHora(hora: string): void {
-    this.selectedHora = hora;
+  private guardarDatos(): void {
+    try {
+      if (this.recordarDatos) {
+        localStorage.setItem(CLAVE_DATOS, JSON.stringify({ nombre: this.nombre.trim(), celular: this.celular.trim() }));
+      } else {
+        localStorage.removeItem(CLAVE_DATOS);
+      }
+    } catch { /* se ignora */ }
   }
 
-  // -- Confirmar --
-  confirmarReserva(): void {
-    if (!this.isServiciosSelected || !this.selectedFecha || !this.selectedHora || !this.personas[0].nombre) return;
+  // ---------- Navegación ----------
+  get puedeContinuar(): boolean {
+    switch (this.paso) {
+      case 1: return this.seleccionados.length > 0;
+      case 2: return !!this.fecha && !!this.hora;
+      case 3: return this.nombreValido && this.celularValido;
+    }
+  }
 
-    this.isSubmitting = true;
-    this.errorMessage = '';
+  get textoBoton(): string {
+    if (this.paso === 3) return this.enviando ? 'Reservando…' : 'Confirmar cita';
+    return 'Continuar';
+  }
+
+  get pistaBoton(): string {
+    if (this.paso === 1) return 'Elige al menos un servicio';
+    if (this.paso === 2) return this.fecha ? 'Elige una hora' : 'Elige un día';
+    return 'Completa tus datos';
+  }
+
+  continuar(): void {
+    if (this.paso === 3) {
+      this.intentoEnviar = true;
+      if (this.puedeContinuar) this.confirmar();
+      return;
+    }
+    if (!this.puedeContinuar) return;
+    this.paso = (this.paso + 1) as Paso;
+    if (this.paso === 2 && !this.fecha) {
+      const primero = this.dias.find(d => d.abierto);
+      if (primero) this.elegirDia(primero);
+    } else if (this.paso === 2 && !this.grupos.length) {
+      this.cargarSlots();
+    }
+    this.subir();
+  }
+
+  atras(): void {
+    if (this.paso > 1) {
+      this.paso = (this.paso - 1) as Paso;
+      this.subir();
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
+  irAPaso(p: Paso): void {
+    if (p < this.paso) {
+      this.paso = p;
+      this.subir();
+    }
+  }
+
+  private subir(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---------- Confirmar ----------
+  confirmar(): void {
+    if (this.enviando) return;
+    this.enviando = true;
+    this.errorEnvio = '';
+    this.guardarDatos();
 
     this.reservasService.crearReservaOnline({
-      servicioIds: this.selectedServicios.map(s => s.id),
-      fecha: this.selectedFecha,
-      horaInicio: this.selectedHora,
-      cliente: {
-        nombre: `${this.personas[0].nombre.trim()} ${this.personas[0].apellido.trim()}`.trim(),
-        telefono: this.personas[0].celular.trim(),
-        email: ''
-      }
+      servicioIds: this.seleccionados.map(s => s.id),
+      fecha: this.fecha,
+      horaInicio: this.hora,
+      cliente: { nombre: this.nombre.trim(), telefono: this.celular.trim(), email: '' },
+      notas: this.notas.trim() || undefined
     }).subscribe({
       next: (res) => {
-        this.isSubmitting = false;
-
-        // Construir mensaje de WhatsApp
-        const telefonoNegocio = '573184642772'; // Número real de Claudia
-        
-        // Obtener el día de la semana
-        const diasJs = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-        const dateObj = new Date(this.selectedFecha + 'T00:00:00.000Z');
-        const nombreDia = !isNaN(dateObj.getTime()) ? diasJs[dateObj.getUTCDay()] : '';
-
-        const nombreCompleto = `${this.personas[0].nombre} ${this.personas[0].apellido}`.trim();
-        
-        let mensaje = `Hola Claudia, soy ${nombreCompleto}.\nHe reservado una cita para el día ${nombreDia}, fecha ${this.selectedFecha} a las ${this.selectedHora}.\n\nServicios seleccionados:\n`;
-        this.selectedServicios.forEach(s => {
-          mensaje += `• ${s.categoria} ${s.nombre}\n`;
-        });
-
-        const waUrl = `https://wa.me/${telefonoNegocio}?text=${encodeURIComponent(mensaje)}`;
-
-        // Redirigir a WhatsApp
-        window.open(waUrl, '_blank');
-
-        // Redirigir a la pantalla de confirmación localmente
-        const serviciosText = this.selectedServicios.map(s => s.nombre).join(', ');
+        this.enviando = false;
         this.router.navigate(['/reservar/confirmacion'], {
           queryParams: {
-            citaId: res.data.id,
-            servicio: serviciosText,
-            fecha: this.selectedFecha,
-            hora: this.selectedHora,
-            nombre: this.personas[0].nombre
+            id: res.data.id,
+            servicios: this.seleccionados.map(s => `${s.categoria} ${s.nombre}`).join(' · '),
+            fecha: this.fecha,
+            hora: this.hora,
+            duracion: this.duracionTotal,
+            nombre: this.nombre.trim().split(' ')[0]
           }
         });
       },
       error: (err) => {
-        this.isSubmitting = false;
-        this.errorMessage = err.error?.message || 'Error al procesar la reserva. Intenta nuevamente.';
+        this.enviando = false;
+        if (err.status === 409 || (err.status === 400 && /horario|pas/i.test(err.error?.message ?? ''))) {
+          // El horario ya no está disponible: volver a elegir hora con la lista actualizada
+          this.avisoSlots = err.error?.message || 'Ese horario acaba de ocuparse. Elige otro, por favor.';
+          this.hora = '';
+          this.paso = 2;
+          this.cargarSlots();
+          this.subir();
+        } else if (err.status === 429) {
+          this.errorEnvio = 'Has hecho varios intentos seguidos. Espera un momento o escríbenos por WhatsApp.';
+        } else if (err.status === 0) {
+          this.errorEnvio = 'Sin conexión. Revisa tu internet e intenta de nuevo.';
+        } else {
+          this.errorEnvio = err.error?.message || 'No pudimos registrar tu cita. Intenta de nuevo.';
+        }
       }
     });
+  }
+
+
+  // ---------- Formato ----------
+  hora12 = hora12;
+  duracionTexto = duracionTexto;
+  fechaLarga = fechaLarga;
+  horaFin(): string {
+    return this.hora ? sumarMinutos(this.hora, this.duracionTotal) : '';
   }
 }

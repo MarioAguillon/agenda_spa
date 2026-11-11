@@ -9,6 +9,18 @@ export class ServiciosRepository {
     });
   }
 
+  /**
+   * Catálogo público para las clientas. Selecciona solo campos seguros:
+   * el PRECIO no se expone (se acuerda directamente con Claudia).
+   */
+  async findPublicos(negocioId: string) {
+    return prisma.servicio.findMany({
+      where: { negocioId, activo: true },
+      select: { id: true, nombre: true, descripcion: true, categoria: true, duracionMinutos: true, activo: true },
+      orderBy: [{ categoria: 'asc' }, { nombre: 'asc' }]
+    });
+  }
+
   async findAll(negocioId: string): Promise<Servicio[]> {
     return prisma.servicio.findMany({
       where: { negocioId },
@@ -28,11 +40,11 @@ export class ServiciosRepository {
     });
   }
 
-  async create(data: { negocioId: string; nombre: string; descripcion?: string; duracionMinutos: number }): Promise<Servicio> {
+  async create(data: { negocioId: string; nombre: string; descripcion?: string; categoria?: string; duracionMinutos: number }): Promise<Servicio> {
     return prisma.servicio.create({ data });
   }
 
-  async update(id: string, data: Partial<{ nombre: string; descripcion: string; duracionMinutos: number; activo: boolean }>): Promise<Servicio> {
+  async update(id: string, data: Partial<{ nombre: string; descripcion: string; categoria: string; duracionMinutos: number; activo: boolean }>): Promise<Servicio> {
     return prisma.servicio.update({
       where: { id },
       data

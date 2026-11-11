@@ -1,8 +1,8 @@
 <div class="inicio-page container">
   <!-- Encabezado y Estadísticas -->
   <div class="page-header">
-    <h1 class="serif-heading">📅 Panel del Día</h1>
-    <app-button variant="gold" (btnClick)="openCrearCitaModal()">+ CREAR CITA MANUAL</app-button>
+    <h1 class="serif-heading">Agenda de hoy</h1>
+    <app-button variant="gold" (btnClick)="openCrearCitaModal()">+ Agendar cita</app-button>
   </div>
 
   <app-loading *ngIf="isLoading" message="Cargando agenda del día..."></app-loading>
@@ -12,11 +12,11 @@
     <div class="stats-grid">
       <div class="stat-card card-surface">
         <span class="stat-number">{{ resumen.citasHoyCount }}</span>
-        <span class="stat-label">Citas Hoy</span>
+        <span class="stat-label">Citas hoy</span>
       </div>
       <div class="stat-card card-surface">
         <span class="stat-number">{{ resumen.proximasCitas.length }}</span>
-        <span class="stat-label">Próximos 7 Días</span>
+        <span class="stat-label">Próximos 7 días</span>
       </div>
       <div class="stat-card card-surface">
         <span class="stat-number">{{ resumen.totalClientes }}</span>
@@ -24,26 +24,26 @@
       </div>
       <div class="stat-card card-surface">
         <span class="stat-number">{{ resumen.totalServicios }}</span>
-        <span class="stat-label">Servicios Activos</span>
+        <span class="stat-label">Servicios activos</span>
       </div>
     </div>
 
     <!-- Citas de Hoy (Kanban View) -->
     <div class="section-block">
       <div class="kanban-header">
-        <h2 class="serif-heading section-title">📅 Citas de Hoy (Kanban)</h2>
-        <span class="date-subtitle">Gestiona el flujo de trabajo de hoy arrastrando o usando los botones.</span>
+        <h2 class="serif-heading section-title">Citas de hoy</h2>
+        <span class="date-subtitle">Marca cada cita cuando termine, o si la clienta no vino.</span>
       </div>
 
       <div *ngIf="resumen.citasHoy.length === 0" class="empty-state card-surface text-center">
-        <p>No hay citas agendadas para hoy. ¡Día libre o por llenar! 🌟</p>
+        <p>No hay citas agendadas para hoy. ¡Día libre o por llenar! </p>
       </div>
 
       <div *ngIf="resumen.citasHoy.length > 0" class="kanban-board">
         <!-- Columna: PENDIENTES / CONFIRMADAS -->
         <div class="kanban-col">
           <div class="k-col-header confirmadas-header">
-            <h3>⏳ Pendientes</h3>
+            <h3>Pendientes</h3>
             <span class="k-count">{{ citasConfirmadas.length }}</span>
           </div>
           <div class="k-cards">
@@ -54,9 +54,9 @@
                 <span *ngFor="let s of cita.servicios; let last = last">{{ s.nombre }}{{ !last ? ', ' : '' }}</span>
               </div>
               <div class="k-card-actions">
-                <button class="k-btn k-btn-complete" title="Completar" (click)="cambiarEstado(cita, 'COMPLETADA')">✅</button>
-                <button class="k-btn k-btn-noshow" title="No Asistió" (click)="cambiarEstado(cita, 'NO_ASISTIO')">⚠️</button>
-                <button class="k-btn k-btn-cancel" title="Cancelar" (click)="cambiarEstado(cita, 'CANCELADA')">❌</button>
+                <button class="k-btn k-btn-complete" title="Completar" (click)="cambiarEstado(cita, 'COMPLETADA')">Lista</button>
+                <button class="k-btn k-btn-noshow" title="No Asistió" (click)="cambiarEstado(cita, 'NO_ASISTIO')">No vino</button>
+                <button class="k-btn k-btn-cancel" title="Cancelar" (click)="cambiarEstado(cita, 'CANCELADA')">Cancelar</button>
               </div>
             </div>
             <div *ngIf="citasConfirmadas.length === 0" class="k-empty">No hay citas pendientes.</div>
@@ -66,7 +66,7 @@
         <!-- Columna: COMPLETADAS -->
         <div class="kanban-col">
           <div class="k-col-header completadas-header">
-            <h3>🎉 Completadas</h3>
+            <h3>Completadas</h3>
             <span class="k-count">{{ citasCompletadas.length }}</span>
           </div>
           <div class="k-cards">
@@ -84,7 +84,7 @@
         <!-- Columna: CANCELADAS / NO ASISTIÓ -->
         <div class="kanban-col">
           <div class="k-col-header canceladas-header">
-            <h3>❌ Canceladas</h3>
+            <h3>Canceladas</h3>
             <span class="k-count">{{ citasCanceladas.length }}</span>
           </div>
           <div class="k-cards">
@@ -101,7 +101,7 @@
 
     <!-- Próximas Citas -->
     <div class="section-block">
-      <h2 class="serif-heading section-title">📆 Próximas Citas (7 días)</h2>
+      <h2 class="serif-heading section-title">Próximos 7 días</h2>
 
       <div *ngIf="resumen.proximasCitas.length === 0" class="empty-state card-surface text-center">
         <p>No hay citas agendadas para los próximos 7 días.</p>
@@ -127,11 +127,11 @@
     </div>
   </div>
 
-  <!-- Modal Crear Cita Manual -->
+  <!-- Modal Agendar cita -->
   <div *ngIf="showCrearCitaModal" class="modal-overlay animate-fade-in">
     <div class="modal-card card-surface">
-      <h2 class="serif-heading">Crear Cita Manual</h2>
-      <p>Para clientas que reservan por llamada o en persona.</p>
+      <h2 class="serif-heading">Agendar cita</h2>
+      <p>Para clientas que te escriben o llaman.</p>
 
       <form (ngSubmit)="guardarCitaManual()" class="modal-form">
         <div class="form-group">
@@ -186,8 +186,8 @@
         </div>
 
         <div class="modal-actions">
-          <app-button variant="secondary" (btnClick)="closeCrearCitaModal()" type="button">CANCELAR</app-button>
-          <app-button variant="gold" type="submit" [loading]="isSaving">AGENDAR CITA</app-button>
+          <app-button variant="secondary" (btnClick)="closeCrearCitaModal()" type="button">Cancelar</app-button>
+          <app-button variant="gold" type="submit" [loading]="isSaving">Agendar</app-button>
         </div>
       </form>
     </div>

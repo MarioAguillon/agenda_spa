@@ -13,7 +13,7 @@
       type="text"
       [(ngModel)]="searchTerm"
       (input)="onSearch()"
-      placeholder="🔍 Buscar por nombre o número de WhatsApp..."
+      placeholder="Buscar por nombre o número de WhatsApp..."
       class="search-input"
     />
   </div>
@@ -29,13 +29,13 @@
         </div>
         <div>
           <h3 class="cliente-nombre">{{ c.nombre }}</h3>
-          <span class="cliente-phone">📲 {{ c.telefono }}</span>
+          <span class="cliente-phone">{{ c.telefono }}</span>
         </div>
       </div>
 
       <div class="card-body">
-        <p *ngIf="c.email" class="cliente-email">✉️ {{ c.email }}</p>
-        <p *ngIf="c.notas" class="cliente-notas">📝 {{ c.notas }}</p>
+        <p *ngIf="c.email" class="cliente-email">{{ c.email }}</p>
+        <p *ngIf="c.notas" class="cliente-notas">{{ c.notas }}</p>
       </div>
 
       <div class="card-footer">

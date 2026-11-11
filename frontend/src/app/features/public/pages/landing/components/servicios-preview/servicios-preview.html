@@ -1,37 +1,43 @@
-<section class="servicios-section" id="servicios">
+<section class="section servicios" id="servicios">
   <div class="container">
     <div class="section-header">
-      <span class="gold-badge">Nuestros Servicios</span>
-      <h2 class="serif-heading">¿Qué te gustaría hoy?</h2>
+      <span class="eyebrow">Nuestros servicios</span>
+      <h2>Cuidado experto para tus manos y pies</h2>
+      <p>Elige un servicio y reserva tu hora en segundos.</p>
     </div>
 
-    <div class="categorias-grid">
-      <div
-        *ngFor="let cat of categorias"
-        class="categoria-card"
-        [class.open]="cat.isOpen"
-        (click)="toggleCategoria(cat)">
+    <div class="grid" *ngIf="cargando">
+      <div class="skeleton tarjeta-skel" *ngFor="let i of [1,2,3]"></div>
+    </div>
 
-        <!-- Imagen de fondo de la categoría -->
-        <div class="cat-image" [style.backgroundImage]="'url(' + cat.imagen + ')'">
-          <div class="cat-overlay">
-            <span class="cat-emoji">{{ cat.emoji }}</span>
-            <h3 class="cat-nombre">{{ cat.nombre }}</h3>
-            <span class="cat-hint">{{ cat.isOpen ? 'Cerrar ✕' : 'Ver opciones →' }}</span>
-          </div>
+    <div class="grid" *ngIf="!cargando && categorias.length">
+      <article *ngFor="let cat of categorias" class="tarjeta">
+        <div class="tarjeta-img">
+          <img [src]="cat.imagen" [alt]="cat.nombre" loading="lazy" />
+          <span class="tarjeta-icono"><app-icon [name]="cat.icono" [size]="20" /></span>
         </div>
+        <div class="tarjeta-cuerpo">
+          <h3>{{ cat.nombre }}</h3>
+          <ul class="lista">
+            <li *ngFor="let s of cat.servicios">
+              <a [routerLink]="['/reservar']" [queryParams]="{ servicioId: s.id }" class="item">
+                <span class="item-nombre">{{ s.nombre }}</span>
+                <span class="item-dur">{{ duracionTexto(s.duracionMinutos) }}</span>
+                <app-icon name="chevron-right" [size]="16" />
+              </a>
+            </li>
+          </ul>
+        </div>
+      </article>
+    </div>
 
-        <!-- Sub-opciones que se revelan al hacer click -->
-        <div class="cat-subopciones" *ngIf="cat.isOpen" (click)="$event.stopPropagation()">
-          <button
-            *ngFor="let s of cat.servicios"
-            class="subopcion-btn"
-            (click)="agendarServicio(s)">
-            <span class="sub-name">{{ getSubName(s, cat.nombre) || s.nombre }}</span>
-            <span class="sub-arrow">→</span>
-          </button>
-        </div>
-      </div>
+    <p class="sin-datos" *ngIf="!cargando && !categorias.length">
+      Manicure, pedicure y depilación. Toca «Reservar cita» para ver todos los servicios disponibles.
+    </p>
+
+    <div class="pie">
+      <a routerLink="/reservar" class="btn btn-ink">Reservar cita</a>
+      <p class="pie-nota">Los valores los acuerdas directamente con Claudia.</p>
     </div>
   </div>
 </section>

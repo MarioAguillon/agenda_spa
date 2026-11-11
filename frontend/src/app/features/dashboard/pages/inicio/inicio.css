@@ -427,3 +427,16 @@ textarea.form-control {
   font-style: italic;
 }
 
+
+/* Botones de estado: texto claro y área táctil cómoda */
+.k-btn {
+  min-height: 40px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: var(--ivory-deep);
+  color: var(--ink);
+  border-radius: var(--radius-full);
+}
+.k-btn-complete { background: var(--success-wash); color: var(--success); }
+.k-btn-cancel { background: var(--error-wash); color: var(--error); }
+.k-btn:hover { filter: brightness(0.96); }

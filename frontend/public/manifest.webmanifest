@@ -1,8 +1,8 @@
 {
-  "name": "claudia-santana-nails",
-  "short_name": "claudia-santana-nails",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "name": "Claudia Santana Nails",
+  "short_name": "Claudia Nails",
+  "theme_color": "#FBF8F3",
+  "background_color": "#FBF8F3",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

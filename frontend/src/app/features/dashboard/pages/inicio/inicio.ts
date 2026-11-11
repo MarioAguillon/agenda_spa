@@ -61,10 +61,10 @@ export class InicioComponent implements OnInit {
 
   getEstadoLabel(estado: string): string {
     const labels: Record<string, string> = {
-      CONFIRMADA: '✅ Confirmada',
-      CANCELADA: '❌ Cancelada',
-      COMPLETADA: '🎉 Completada',
-      NO_ASISTIO: '⚠️ No Asistió'
+      CONFIRMADA: 'Confirmada',
+      CANCELADA: 'Cancelada',
+      COMPLETADA: 'Completada',
+      NO_ASISTIO: 'No Asistió'
     };
     return labels[estado] || estado;
   }

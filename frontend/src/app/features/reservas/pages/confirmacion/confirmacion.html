@@ -1,38 +1,70 @@
-<div class="confirmacion-page container">
-  <div class="confirmacion-card card-surface text-center animate-fade-in">
-    <div class="success-icon">🎉</div>
-    <span class="gold-badge">¡Reserva Agendada con Éxito!</span>
-    <h1 class="serif-heading">¡Te esperamos, {{ nombre }}!</h1>
-    <p class="subtitle">Tu cita ha sido registrada correctamente en la agenda de Claudia Santana Nails.</p>
+<main class="confirmacion">
+  <div class="contenido animate-fade-in" *ngIf="valida; else sinDatos">
+    <div class="sello" aria-hidden="true"><app-icon name="check" [size]="34" [stroke]="1.8" /></div>
+    <p class="eyebrow">Cita reservada</p>
+    <h1 class="titulo">¡Te esperamos{{ nombre ? ', ' + nombre : '' }}!</h1>
+    <p class="sub">Claudia ya tiene tu cita en su agenda.</p>
 
-    <!-- Ficha de la Reserva -->
-    <div class="summary-box gold-accent-border">
-      <div class="summary-row">
-        <span>💅 Servicio:</span>
-        <strong>{{ servicio }}</strong>
+    <article class="ticket" aria-label="Detalle de tu cita">
+      <div class="ticket-cabeza">
+        <p class="ticket-fecha">{{ fechaTexto }}</p>
+        <p class="ticket-hora">{{ horaTexto }} – {{ horaFinTexto }}</p>
       </div>
-      <div class="summary-row">
-        <span>📅 Fecha:</span>
-        <strong>{{ fecha }}</strong>
+      <div class="ticket-corte" aria-hidden="true"></div>
+      <div class="ticket-cuerpo">
+        <div class="ticket-fila">
+          <app-icon name="sparkles" [size]="18" />
+          <div>
+            <p *ngFor="let s of servicios" class="ticket-valor">{{ s }}</p>
+            <p class="ticket-sec">{{ duracionTexto }} aprox.</p>
+          </div>
+        </div>
+        <div class="ticket-fila">
+          <app-icon name="map-pin" [size]="18" />
+          <div>
+            <p class="ticket-valor">{{ salon.direccion }}</p>
+            <p class="ticket-sec">Con {{ salon.profesional }}</p>
+          </div>
+        </div>
+        <div class="ticket-fila" *ngIf="codigo">
+          <app-icon name="info" [size]="18" />
+          <div>
+            <p class="ticket-sec">Código de reserva</p>
+            <p class="ticket-valor codigo">{{ codigo }}</p>
+          </div>
+        </div>
       </div>
-      <div class="summary-row">
-        <span>🕐 Hora:</span>
-        <strong>{{ hora }}</strong>
-      </div>
-    </div>
+    </article>
 
-    <!-- Botón directo de Confirmación por WhatsApp (Estrategia wa.me) -->
-    <div class="wa-action-box">
-      <a [href]="getWhatsAppLink()" target="_blank" class="btn-wa-direct">
-        📲 ABRIR CONFIRMACIÓN EN WHATSAPP
+    <div class="acciones">
+      <a class="btn btn-ink btn-block" [href]="whatsappLink" target="_blank" rel="noopener">
+        <app-icon name="message" [size]="18" /> Avisar a Claudia por WhatsApp
       </a>
-      <p class="hint">Toca este botón para enviarnos un mensaje rápido por WhatsApp si deseas confirmar algún detalle.</p>
+      <div class="acciones-sec">
+        <a class="btn btn-outline" [href]="googleCalendarUrl" target="_blank" rel="noopener">
+          <app-icon name="calendar-plus" [size]="18" /> Agregar al calendario
+        </a>
+        <a class="btn btn-outline" [href]="salon.mapsUrl" target="_blank" rel="noopener">
+          <app-icon name="navigation" [size]="18" /> Cómo llegar
+        </a>
+      </div>
     </div>
 
-    <div class="mt-4">
-      <a routerLink="/">
-        <app-button variant="outline-gold">VOLVER A INICIO</app-button>
-      </a>
-    </div>
+    <p class="ayuda">
+      ¿Necesitas cambiar o cancelar tu cita? Escríbenos por WhatsApp al
+      <a [href]="'https://wa.me/' + salon.telefonoWhatsApp" target="_blank" rel="noopener">{{ salon.telefonoVisible }}</a>.
+    </p>
+
+    <a routerLink="/" class="volver">Volver al inicio</a>
   </div>
-</div>
+
+  <ng-template #sinDatos>
+    <div class="contenido">
+      <h1 class="titulo">No encontramos tu reserva</h1>
+      <p class="sub">Si acabas de reservar, revisa tu WhatsApp o escríbenos.</p>
+      <div class="acciones">
+        <a routerLink="/reservar" class="btn btn-ink btn-block">Reservar una cita</a>
+      </div>
+    </div>
+  </ng-template>
+</main>

@@ -9,10 +9,12 @@ import { CommonModule } from '@angular/common';
   styleUrl: './galeria.css'
 })
 export class GaleriaComponent {
+  // Para cambiar fotos: reemplazar los archivos en public/images (formato vertical u horizontal sirve)
   trabajos = [
-    { imagen: '/images/gallery-1.jpg', titulo: 'Gold Foil & Nude', tag: 'Manicure' },
-    { imagen: '/images/gallery-2.jpg', titulo: 'Flower Nail Art', tag: 'Softgel' },
-    { imagen: '/images/cat-manicure.jpg', titulo: 'Semipermanente Clásico', tag: 'Manicure' },
-    { imagen: '/images/cat-pedicure.jpg', titulo: 'Pedicure Spa Premium', tag: 'Pedicure' }
+    { imagen: '/images/gallery-1.jpg', titulo: 'Nude con lámina dorada', tag: 'Manicure' },
+    { imagen: '/images/gallery-2.jpg', titulo: 'Arte floral', tag: 'Softgel' },
+    { imagen: '/images/cat-manicure.jpg', titulo: 'Semipermanente clásico', tag: 'Manicure' },
+    { imagen: '/images/cat-pedicure.jpg', titulo: 'Pedicure spa', tag: 'Pedicure' },
+    { imagen: '/images/hero-bg.jpg', titulo: 'Tu momento de calma', tag: 'El salón' }
   ];
 }

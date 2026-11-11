@@ -5,11 +5,12 @@ import { ServiciosService } from '../../services/servicios.service';
 import { Servicio } from '../../../../core/models/servicio.model';
 import { ButtonComponent } from '../../../../shared/components/button/button';
 import { LoadingComponent } from '../../../../shared/components/loading/loading';
+import { IconComponent } from '../../../../shared/components/icon/icon';
 
 @Component({
   selector: 'app-lista-servicios',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent, LoadingComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent, LoadingComponent, IconComponent],
   templateUrl: './lista-servicios.html',
   styleUrl: './lista-servicios.css'
 })
@@ -22,10 +23,24 @@ export class ListaServiciosComponent implements OnInit {
   // Form Model
   nombre: string = '';
   descripcion: string = '';
+  categoria: string = 'Manicure';
   duracionMinutos: number = 60;
   isSaving: boolean = false;
 
   constructor(private serviciosService: ServiciosService) {}
+
+  /** Categorías existentes, para sugerirlas al crear o editar un servicio. */
+  get categoriasExistentes(): string[] {
+    const base = ['Manicure', 'Pedicure', 'Depilación'];
+    return [...new Set([...base, ...this.servicios.map(s => s.categoria).filter(Boolean)])];
+  }
+
+  get serviciosAgrupados(): { categoria: string; servicios: Servicio[] }[] {
+    return this.categoriasExistentes
+      .map(categoria => ({ categoria, servicios: this.servicios.filter(s => (s.categoria || 'Otros') === categoria) }))
+      .concat([{ categoria: 'Otros', servicios: this.servicios.filter(s => !s.categoria || s.categoria === 'Otros') }])
+      .filter((g, i, arr) => g.servicios.length && arr.findIndex(x => x.categoria === g.categoria) === i);
+  }
 
   ngOnInit(): void {
     this.cargarServicios();
@@ -49,6 +64,7 @@ export class ListaServiciosComponent implements OnInit {
     this.editingServicioId = null;
     this.nombre = '';
     this.descripcion = '';
+    this.categoria = 'Manicure';
     this.duracionMinutos = 60;
     this.showModal = true;
   }
@@ -57,6 +73,7 @@ export class ListaServiciosComponent implements OnInit {
     this.editingServicioId = servicio.id;
     this.nombre = servicio.nombre;
     this.descripcion = servicio.descripcion || '';
+    this.categoria = servicio.categoria || 'Otros';
     this.duracionMinutos = servicio.duracionMinutos;
     this.showModal = true;
   }
@@ -75,7 +92,7 @@ export class ListaServiciosComponent implements OnInit {
   }
 
   guardarServicio(): void {
-    if (!this.nombre || !this.duracionMinutos) return;
+    if (!this.nombre || !this.duracionMinutos || !this.categoria.trim()) return;
 
     this.isSaving = true;
 
@@ -83,6 +100,7 @@ export class ListaServiciosComponent implements OnInit {
       this.serviciosService.updateServicio(this.editingServicioId, {
         nombre: this.nombre,
         descripcion: this.descripcion,
+        categoria: this.categoria.trim(),
         duracionMinutos: this.duracionMinutos
       }).subscribe({
         next: () => {
@@ -96,6 +114,7 @@ export class ListaServiciosComponent implements OnInit {
       this.serviciosService.createServicio({
         nombre: this.nombre,
         descripcion: this.descripcion,
+        categoria: this.categoria.trim(),
         duracionMinutos: this.duracionMinutos
       }).subscribe({
         next: () => {

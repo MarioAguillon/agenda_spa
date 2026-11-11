@@ -1,14 +1,23 @@
-<section class="hero-fullscreen">
-  <div class="hero-overlay"></div>
-  <div class="hero-content animate-fade-in">
-    <img src="/images/logo.png" alt="Claudia Santana Nails" class="hero-logo" />
-    <p class="hero-tagline">Tu espacio de belleza en Mosquera</p>
-    <a routerLink="/reservar">
-      <button class="btn-cta pulse-glow">✨ AGENDAR MI CITA</button>
-    </a>
-    <div class="hero-info">
-      <span>📍 Mosquera, Cundinamarca</span>
-      <span>📲 318 464 2772</span>
+<section class="hero">
+  <div class="hero-media" aria-hidden="true"></div>
+  <div class="hero-velo" aria-hidden="true"></div>
+
+  <div class="hero-contenido animate-fade-in">
+    <img src="/images/logo.png" alt="" class="hero-logo" width="112" height="112" />
+    <p class="eyebrow hero-eyebrow">Spa de uñas en Mosquera</p>
+    <h1 class="hero-titulo">Uñas impecables,<br /><em>un momento solo&nbsp;para&nbsp;ti</em></h1>
+    <p class="hero-texto">Manicure, pedicure y depilación con atención personalizada de Claudia Santana.</p>
+
+    <div class="hero-acciones">
+      <a routerLink="/reservar" class="btn btn-gold hero-cta">
+        Reservar mi cita <app-icon name="arrow-right" [size]="18" />
+      </a>
+      <a routerLink="/" fragment="servicios" class="btn hero-sec">Ver servicios</a>
     </div>
+
+    <ul class="hero-datos">
+      <li><app-icon name="clock" [size]="16" /> Reserva en 1 minuto</li>
+      <li><app-icon name="map-pin" [size]="16" /> Mosquera, Cundinamarca</li>
+    </ul>
   </div>
 </section>

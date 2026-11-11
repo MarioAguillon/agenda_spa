@@ -1,73 +1,61 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ServiciosService } from '../../../../../servicios/services/servicios.service';
 import { Servicio } from '../../../../../../core/models/servicio.model';
+import { IconComponent } from '../../../../../../shared/components/icon/icon';
+import { duracionTexto } from '../../../../../../core/utils/formato';
 
 interface CategoriaServicio {
   nombre: string;
   imagen: string;
-  emoji: string;
+  icono: string;
   servicios: Servicio[];
-  isOpen: boolean;
 }
+
+const IMAGENES: Record<string, string> = {
+  Manicure: '/images/cat-manicure.jpg',
+  Pedicure: '/images/cat-pedicure.jpg',
+  'Depilación': '/images/cat-depilacion.jpg'
+};
+const ICONOS: Record<string, string> = { Manicure: 'sparkles', Pedicure: 'footprints', 'Depilación': 'leaf' };
+const ORDEN = ['Manicure', 'Pedicure', 'Depilación'];
 
 @Component({
   selector: 'app-servicios-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, IconComponent],
   templateUrl: './servicios-preview.html',
   styleUrl: './servicios-preview.css'
 })
 export class ServiciosPreviewComponent implements OnInit {
-  categorias: CategoriaServicio[] = [];
+  private serviciosService = inject(ServiciosService);
 
-  constructor(
-    private serviciosService: ServiciosService,
-    private router: Router
-  ) {}
+  categorias: CategoriaServicio[] = [];
+  cargando = true;
+  duracionTexto = duracionTexto;
 
   ngOnInit(): void {
     this.serviciosService.getPublicServicios().subscribe({
-      next: (res: any) => {
-        const servicios = res.data as Servicio[];
-        this.categorias = [
-          {
-            nombre: 'Manicure',
-            imagen: '/images/cat-manicure.jpg',
-            emoji: '💅',
-            servicios: servicios.filter(s => s.nombre.toLowerCase().includes('manicure')),
-            isOpen: false
-          },
-          {
-            nombre: 'Pedicure',
-            imagen: '/images/cat-pedicure.jpg',
-            emoji: '🦶',
-            servicios: servicios.filter(s => s.nombre.toLowerCase().includes('pedicure')),
-            isOpen: false
-          },
-          {
-            nombre: 'Depilación',
-            imagen: '/images/cat-depilacion.jpg',
-            emoji: '✨',
-            servicios: servicios.filter(s => s.nombre.toLowerCase().includes('depilación') || s.nombre.toLowerCase().includes('depilacion')),
-            isOpen: false
-          }
-        ];
+      next: (res) => {
+        const porCategoria = new Map<string, Servicio[]>();
+        for (const s of res.data) {
+          const cat = s.categoria || 'Otros';
+          porCategoria.set(cat, [...(porCategoria.get(cat) ?? []), s]);
+        }
+        const nombres = [...porCategoria.keys()].sort((a, b) => {
+          const ia = ORDEN.indexOf(a), ib = ORDEN.indexOf(b);
+          return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+        });
+        this.categorias = nombres.map(nombre => ({
+          nombre,
+          imagen: IMAGENES[nombre] ?? '/images/gallery-1.jpg',
+          icono: ICONOS[nombre] ?? 'flower',
+          servicios: porCategoria.get(nombre)!
+        }));
+        this.cargando = false;
       },
-      error: (err: any) => console.error('Error al cargar servicios:', err)
+      error: () => { this.cargando = false; }
     });
-  }
-
-  toggleCategoria(cat: CategoriaServicio): void {
-    cat.isOpen = !cat.isOpen;
-  }
-
-  agendarServicio(servicio: Servicio): void {
-    this.router.navigate(['/reservar'], { queryParams: { servicioId: servicio.id } });
-  }
-
-  getSubName(servicio: Servicio, categoriaNombre: string): string {
-    return servicio.nombre.replace(categoriaNombre, '').trim();
   }
 }

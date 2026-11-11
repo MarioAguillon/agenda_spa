@@ -11,14 +11,17 @@ export const routes: Routes = [
         loadComponent: () => import('./features/public/pages/landing/landing').then(m => m.LandingComponent)
       },
       {
-        path: 'reservar',
-        loadComponent: () => import('./features/reservas/pages/flujo-reserva/flujo-reserva').then(m => m.FlujoReservaComponent)
-      },
-      {
         path: 'reservar/confirmacion',
+        title: 'Cita reservada · Claudia Santana Nails',
         loadComponent: () => import('./features/reservas/pages/confirmacion/confirmacion').then(m => m.ConfirmacionComponent)
       }
     ]
+  },
+  {
+    // El flujo de reserva ocupa toda la pantalla (sin menú) para que la clienta se concentre
+    path: 'reservar',
+    title: 'Reservar cita · Claudia Santana Nails',
+    loadComponent: () => import('./features/reservas/pages/flujo-reserva/flujo-reserva').then(m => m.FlujoReservaComponent)
   },
   {
     path: 'login',

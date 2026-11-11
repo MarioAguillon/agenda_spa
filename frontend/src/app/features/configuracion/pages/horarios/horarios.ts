@@ -56,7 +56,7 @@ export class HorariosComponent implements OnInit {
     this.horariosService.updateHorarios(this.horarios).subscribe({
       next: () => {
         this.isSaving = false;
-        this.successMessage = '✅ Horarios de atención guardados correctamente.';
+        this.successMessage = 'Horarios de atención guardados correctamente.';
         setTimeout(() => { this.successMessage = ''; }, 4000);
       },
       error: (err) => {
@@ -89,7 +89,7 @@ export class HorariosComponent implements OnInit {
       next: () => {
         this.isSavingBloqueo = false;
         this.closeBloqueoModal();
-        this.successMessage = '✅ Bloqueo registrado en la agenda.';
+        this.successMessage = 'Bloqueo registrado en la agenda.';
         setTimeout(() => { this.successMessage = ''; }, 4000);
       },
       error: (err) => {

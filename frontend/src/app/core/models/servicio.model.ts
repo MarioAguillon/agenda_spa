@@ -4,7 +4,8 @@ export interface Servicio {
   nombre: string;
   descripcion?: string;
   categoria: string;
-  precio: number;
+  /** Solo visible en el panel; la API pública no lo envía. */
+  precio?: number;
   duracionMinutos: number;
   activo: boolean;
   createdAt?: string;

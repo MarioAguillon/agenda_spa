@@ -1,37 +1,53 @@
-.main-footer {
-  background-color: var(--color-black);
-  color: var(--color-white);
-  padding-top: 4rem;
+.footer {
+  background: var(--ink);
+  color: var(--ivory);
+  padding: 4rem 0 1.5rem;
 }
 
-.footer-content {
+.footer-grid {
   display: flex;
   justify-content: space-between;
+  align-items: flex-end;
   gap: 2rem;
-  padding-bottom: 3rem;
   flex-wrap: wrap;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(251, 248, 243, 0.12);
 }
 
-.footer-brand p, .footer-contact p {
-  color: #A098A8;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
+.marca {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--ivory);
 }
 
-.footer-brand .logo-title {
-  color: var(--color-white);
+.marca-sub {
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 0.75rem;
 }
 
-.footer-contact h4 {
-  color: var(--color-white);
-  font-family: var(--font-primary);
-  font-size: 1.1rem;
+.lema { color: rgba(251, 248, 243, 0.65); }
+
+.cta { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+.cta-titulo { font-family: var(--font-serif); font-size: 1.25rem; color: var(--ivory); }
+
+.footer-base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  font-size: 0.8rem;
 }
 
-.footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.25rem 0;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #A098A8;
+.footer-base p { color: rgba(251, 248, 243, 0.5); }
+
+.acceso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: rgba(251, 248, 243, 0.5);
 }
+.acceso:hover { color: var(--gold-light); }

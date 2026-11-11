@@ -141,3 +141,62 @@
   outline: none;
   border-color: var(--color-gold);
 }
+
+.grupo { margin-bottom: 2.5rem; }
+
+.grupo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
+}
+
+.grupo-cuenta {
+  font-family: var(--font-primary);
+  font-size: 0.8rem;
+  background: var(--gold-wash);
+  color: var(--gold-dark);
+  border-radius: var(--radius-full);
+  padding: 0.1rem 0.6rem;
+}
+
+.service-card.apagado { opacity: 0.6; }
+
+.duration-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500; }
+
+.actions { display: flex; gap: 0.5rem; }
+
+.btn-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+  background: var(--white);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-accion:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+.ayuda { font-size: 0.8rem; color: var(--mauve); font-weight: 400; }
+
+.duraciones { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.4rem; }
+
+.dur-chip {
+  min-width: 52px;
+  min-height: 38px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+  background: var(--white);
+  cursor: pointer;
+}
+.dur-chip.activo { background: var(--ink); color: var(--ivory); border-color: var(--ink); }
+
+.vacio { text-align: center; padding: 3rem 0; }
+
+.modal-card { max-height: 90vh; overflow-y: auto; }
+
+.form-control { border-color: var(--line); min-height: 44px; }

@@ -1,36 +1,37 @@
-<div class="dashboard-root">
-  <!-- Top Navigation Bar -->
-  <header class="dash-header">
-    <div class="container dash-header-container">
-      <div class="dash-brand">
-        <span class="logo-title">CLAUDIA SANTANA</span>
-        <span class="dash-badge gold-badge">Panel PWA</span>
-      </div>
+<div class="panel">
+  <header class="panel-top">
+    <div class="panel-top-inner">
+      <a routerLink="/dashboard" class="marca">
+        <span class="marca-nombre">Claudia Santana</span>
+        <span class="marca-sub">Panel</span>
+      </a>
 
-      <nav class="dash-nav">
-        <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-          📅 Agenda
-        </a>
-        <a routerLink="/dashboard/clientes" routerLinkActive="active" class="nav-item">
-          👥 Clientes
-        </a>
-        <a routerLink="/dashboard/servicios" routerLinkActive="active" class="nav-item">
-          💅 Servicios
-        </a>
-        <a routerLink="/dashboard/configuracion" routerLinkActive="active" class="nav-item">
-          ⏰ Horarios
+      <nav class="nav-escritorio" aria-label="Panel">
+        <a *ngFor="let item of menu" [routerLink]="item.ruta" routerLinkActive="activo"
+          [routerLinkActiveOptions]="{ exact: item.exacto }" class="nav-item">
+          <app-icon [name]="item.icono" [size]="18" /> {{ item.texto }}
         </a>
       </nav>
 
-      <div class="user-actions">
-        <span class="user-name">Hola, {{ authService.currentUser()?.nombre || 'Claudia' }}</span>
-        <button class="btn-logout" (click)="logout()" title="Cerrar Sesión">🚪 Salir</button>
+      <div class="usuario">
+        <span class="saludo">Hola, {{ primerNombre }}</span>
+        <button type="button" class="btn-salir" (click)="logout()" aria-label="Cerrar sesión" title="Cerrar sesión">
+          <app-icon name="log-out" [size]="18" />
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- Contenido de las páginas hijas del Dashboard -->
-  <main class="dash-content-body">
+  <main class="panel-cuerpo">
     <router-outlet></router-outlet>
   </main>
+
+  <!-- Pestañas inferiores en el celular: se manejan con el pulgar -->
+  <nav class="tabs" aria-label="Panel">
+    <a *ngFor="let item of menu" [routerLink]="item.ruta" routerLinkActive="activo"
+      [routerLinkActiveOptions]="{ exact: item.exacto }" class="tab">
+      <app-icon [name]="item.icono" [size]="22" />
+      <span>{{ item.texto }}</span>
+    </a>
+  </nav>
 </div>

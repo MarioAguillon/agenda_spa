@@ -30,7 +30,7 @@ export class ServiciosService {
     return this.http.get<ServicioApiResponse>(`${API_ENDPOINTS.SERVICIOS}/all`);
   }
 
-  createServicio(servicio: { nombre: string; descripcion?: string; duracionMinutos: number }): Observable<SingleServicioApiResponse> {
+  createServicio(servicio: { nombre: string; descripcion?: string; categoria?: string; duracionMinutos: number }): Observable<SingleServicioApiResponse> {
     return this.http.post<SingleServicioApiResponse>(API_ENDPOINTS.SERVICIOS, servicio);
   }
 

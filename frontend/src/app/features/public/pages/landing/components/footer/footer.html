@@ -1,21 +1,19 @@
-<footer class="main-footer">
-  <div class="container footer-content">
-    <div class="footer-brand">
-      <h3 class="serif-heading logo-title">CLAUDIA SANTANA</h3>
-      <span class="logo-sub">NAILS</span>
-      <p>Reserva de citas online fácil, rápida y segura.</p>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <p class="marca">Claudia Santana</p>
+      <p class="marca-sub">Nails</p>
+      <p class="lema">Tu momento de belleza y calma en Mosquera.</p>
     </div>
 
-    <div class="footer-contact">
-      <h4>Contacto</h4>
-      <p>📲 WhatsApp: +57 3184642772</p>
-      <p>📍 Calle 21 # 2 - 16, Mosquera, Cundinamarca</p>
+    <div class="cta">
+      <p class="cta-titulo">¿Lista para consentirte?</p>
+      <a routerLink="/reservar" class="btn btn-gold">Reservar cita</a>
     </div>
   </div>
 
-  <div class="footer-bottom">
-    <div class="container">
-      <p>© {{ currentYear }} Claudia Santana Nails. Todos los derechos reservados.</p>
-    </div>
+  <div class="container footer-base">
+    <p>© {{ currentYear }} Claudia Santana Nails</p>
+    <a routerLink="/login" class="acceso"><app-icon name="lock" [size]="14" /> Acceso Claudia</a>
   </div>
 </footer>

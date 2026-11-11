@@ -1,18 +1,19 @@
-<section class="galeria-section" id="galeria">
+<section class="section galeria" id="galeria">
   <div class="container">
     <div class="section-header">
-      <span class="gold-badge">Nuestro Trabajo</span>
-      <h2 class="serif-heading">Resultados que Inspiran</h2>
+      <span class="eyebrow">Nuestro trabajo</span>
+      <h2>Detalles que se notan</h2>
+      <p>Algunos de los diseños que salen del salón.</p>
     </div>
 
-    <div class="galeria-grid">
-      <div *ngFor="let item of trabajos" class="galeria-item">
+    <div class="mosaico">
+      <figure *ngFor="let item of trabajos; let i = index" class="pieza" [class.grande]="i === 0">
         <img [src]="item.imagen" [alt]="item.titulo" loading="lazy" />
-        <div class="item-overlay">
-          <span class="item-tag gold-badge">{{ item.tag }}</span>
-          <h4 class="item-title">{{ item.titulo }}</h4>
-        </div>
-      </div>
+        <figcaption>
+          <span class="pieza-tag">{{ item.tag }}</span>
+          <span class="pieza-titulo">{{ item.titulo }}</span>
+        </figcaption>
+      </figure>
     </div>
   </div>
 </section>

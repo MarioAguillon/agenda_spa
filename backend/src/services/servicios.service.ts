@@ -9,7 +9,7 @@ export class ServiciosService {
     if (!negocio) {
       throw new AppError('Negocio no encontrado', 404);
     }
-    return serviciosRepository.findAllActivos(negocio.id);
+    return serviciosRepository.findPublicos(negocio.id);
   }
 
   async getAllServices() {
@@ -29,6 +29,7 @@ export class ServiciosService {
       negocioId: negocio.id,
       nombre: input.nombre,
       descripcion: input.descripcion,
+      categoria: input.categoria,
       duracionMinutos: input.duracionMinutos
     });
   }
