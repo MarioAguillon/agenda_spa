@@ -9,17 +9,17 @@ import * as argon2 from 'argon2';
 import { prisma } from '../config/database';
 
 const SERVICIOS_INICIALES = [
-  { categoria: 'Manicure', nombre: 'Tradicional', duracionMinutos: 75, descripcion: 'Limpieza profunda, perfilado de cutículas, limado y esmaltado clásico con acabado brillante.' },
-  { categoria: 'Manicure', nombre: 'Semipermanente', duracionMinutos: 120, descripcion: 'Preparación completa, color semipermanente y curado en lámpara LED. Dura hasta 3 semanas.' },
-  { categoria: 'Manicure', nombre: 'Softgel', duracionMinutos: 180, descripcion: 'Extensión con técnica Softgel. Resultado natural, flexible y resistente.' },
-  { categoria: 'Manicure', nombre: 'Dipping', duracionMinutos: 120, descripcion: 'Inmersión en polvo de alta resistencia. Acabado uniforme y duradero.' },
-  { categoria: 'Pedicure', nombre: 'Tradicional', duracionMinutos: 75, descripcion: 'Baño relajante, exfoliación, hidratación y esmaltado clásico.' },
-  { categoria: 'Pedicure', nombre: 'Semipermanente', duracionMinutos: 75, descripcion: 'Exfoliación, hidratación, masaje relajante y esmaltado semipermanente.' },
-  { categoria: 'Depilación', nombre: 'Cejas y bigote', duracionMinutos: 30, descripcion: 'Diseño de cejas y depilación facial con cera hipoalergénica.' },
-  { categoria: 'Depilación', nombre: 'Axilas', duracionMinutos: 15, descripcion: 'Cera tibia de alta adherencia para una piel sedosa.' },
-  { categoria: 'Depilación', nombre: 'Bikini', duracionMinutos: 60, descripcion: 'Depilación de zona bikini con técnica cuidadosa y cera premium.' },
-  { categoria: 'Depilación', nombre: 'Pierna completa', duracionMinutos: 60, descripcion: 'Desde el tobillo hasta el muslo con cera tibia profesional.' },
-  { categoria: 'Depilación', nombre: 'Completa', duracionMinutos: 120, descripcion: 'Piernas, axilas, bikini, brazos y zona facial en una sola sesión.' }
+  { categoria: 'Manicure', nombre: 'Manicure tradicional', duracionMinutos: 75, descripcion: 'Limpieza profunda, perfilado de cutículas, limado y esmaltado clásico con acabado brillante.' },
+  { categoria: 'Manicure', nombre: 'Manicure semipermanente', duracionMinutos: 120, descripcion: 'Preparación completa, color semipermanente y curado en lámpara LED. Dura hasta 3 semanas.' },
+  { categoria: 'Manicure', nombre: 'Uñas en softgel', duracionMinutos: 180, descripcion: 'Extensión con técnica Softgel. Resultado natural, flexible y resistente.' },
+  { categoria: 'Manicure', nombre: 'Uñas en dipping', duracionMinutos: 120, descripcion: 'Inmersión en polvo de alta resistencia. Acabado uniforme y duradero.' },
+  { categoria: 'Pedicure', nombre: 'Pedicure tradicional', duracionMinutos: 75, descripcion: 'Baño relajante, exfoliación, hidratación y esmaltado clásico.' },
+  { categoria: 'Pedicure', nombre: 'Pedicure semipermanente', duracionMinutos: 75, descripcion: 'Exfoliación, hidratación, masaje relajante y esmaltado semipermanente.' },
+  { categoria: 'Depilación', nombre: 'Depilación de cejas y bigote', duracionMinutos: 30, descripcion: 'Diseño de cejas y depilación facial con cera hipoalergénica.' },
+  { categoria: 'Depilación', nombre: 'Depilación de axilas', duracionMinutos: 15, descripcion: 'Cera tibia de alta adherencia para una piel sedosa.' },
+  { categoria: 'Depilación', nombre: 'Depilación de bikini', duracionMinutos: 60, descripcion: 'Depilación de zona bikini con técnica cuidadosa y cera premium.' },
+  { categoria: 'Depilación', nombre: 'Depilación de piernas', duracionMinutos: 60, descripcion: 'Desde el tobillo hasta el muslo con cera tibia profesional.' },
+  { categoria: 'Depilación', nombre: 'Depilación completa', duracionMinutos: 120, descripcion: 'Piernas, axilas, bikini, brazos y zona facial en una sola sesión.' }
 ];
 
 async function main(): Promise<void> {

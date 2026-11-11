@@ -123,8 +123,24 @@ export class FlujoReservaComponent implements OnInit {
     }
   }
 
-  get serviciosDeCategoria(): Servicio[] {
-    return this.servicios.filter(s => (s.categoria || 'Otros') === this.categoriaActiva);
+  serviciosDe(cat: string): Servicio[] {
+    return this.servicios.filter(s => (s.categoria || 'Otros') === cat);
+  }
+
+  /** Lleva la lista a la sección de la categoría (todas están en una sola lista). */
+  irACategoria(cat: string): void {
+    this.categoriaActiva = cat;
+    document.getElementById(this.idCategoria(cat))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  idCategoria(cat: string): string {
+    return 'cat-' + cat.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-');
+  }
+
+  /** Nombre a mostrar: si el nombre ya incluye la categoría no se repite. */
+  nombreServicio(s: Servicio): string {
+    const cat = (s.categoria || '').toLowerCase();
+    return !cat || s.nombre.toLowerCase().includes(cat.slice(0, 5)) ? s.nombre : `${s.categoria} ${s.nombre.toLowerCase()}`;
   }
 
   contarEnCategoria(cat: string): number {
@@ -333,7 +349,7 @@ export class FlujoReservaComponent implements OnInit {
         this.router.navigate(['/reservar/confirmacion'], {
           queryParams: {
             id: res.data.id,
-            servicios: this.seleccionados.map(s => `${s.categoria} ${s.nombre}`).join(' · '),
+            servicios: this.seleccionados.map(s => this.nombreServicio(s)).join(' · '),
             fecha: this.fecha,
             hora: this.hora,
             duracion: this.duracionTotal,

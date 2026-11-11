@@ -419,3 +419,76 @@ textarea.input { resize: vertical; min-height: 88px; }
 .barra-sec:first-letter { text-transform: uppercase; }
 
 .barra .btn { flex-shrink: 0; }
+
+/* ---------- Lista única agrupada por categoría ---------- */
+.categorias {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  background: var(--ivory);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.categoria.activa {
+  background: var(--gold-wash);
+  color: var(--gold-dark);
+  border-color: var(--gold-light);
+}
+
+.grupo-servicios {
+  scroll-margin-top: 130px;
+  margin-bottom: 1.75rem;
+}
+
+.grupo-servicios-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.35rem;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.grupo-servicios-titulo app-icon { color: var(--gold-dark); }
+
+.seleccion {
+  background: var(--white);
+  border: 1px solid var(--gold-light);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.seleccion-titulo {
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.seleccion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip-sel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 36px;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--ink);
+  color: var(--ivory);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.seleccion-ayuda {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}

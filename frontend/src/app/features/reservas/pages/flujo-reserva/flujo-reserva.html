@@ -17,7 +17,7 @@
     <!-- ============ PASO 1: SERVICIOS ============ -->
     <section *ngIf="paso === 1" class="paso animate-fade-in" aria-labelledby="t-servicios">
       <h1 id="t-servicios" class="paso-titulo">¿Qué te gustaría hacerte?</h1>
-      <p class="paso-sub">Puedes elegir uno o varios servicios.</p>
+      <p class="paso-sub">Elige todos los que quieras: por ejemplo manicure, pedicure y depilación en la misma cita.</p>
 
       <!-- Carga -->
       <div *ngIf="cargandoServicios" class="lista">
@@ -37,33 +37,48 @@
       </div>
 
       <ng-container *ngIf="!cargandoServicios && !errorServicios">
-        <div class="categorias" role="tablist" aria-label="Categorías">
-          <button *ngFor="let cat of categorias" type="button" role="tab" class="categoria"
-            [class.activa]="categoriaActiva === cat" [attr.aria-selected]="categoriaActiva === cat"
-            (click)="categoriaActiva = cat">
+        <!-- Atajos a cada categoría (todas están en la misma lista) -->
+        <nav class="categorias" aria-label="Ir a categoría">
+          <button *ngFor="let cat of categorias" type="button" class="categoria"
+            [class.activa]="contarEnCategoria(cat) > 0" (click)="irACategoria(cat)">
             <app-icon [name]="iconoCategoria(cat)" [size]="18" />
             {{ cat }}
             <span class="cat-badge" *ngIf="contarEnCategoria(cat)">{{ contarEnCategoria(cat) }}</span>
           </button>
+        </nav>
+
+        <!-- Lo que la clienta ya eligió -->
+        <div class="seleccion" *ngIf="seleccionados.length" aria-live="polite">
+          <p class="seleccion-titulo">Tu selección</p>
+          <div class="seleccion-chips">
+            <button *ngFor="let s of seleccionados" type="button" class="chip-sel" (click)="alternarServicio(s)"
+              [attr.aria-label]="'Quitar ' + nombreServicio(s)">
+              {{ nombreServicio(s) }} <app-icon name="x" [size]="14" />
+            </button>
+          </div>
+          <p class="seleccion-ayuda">Puedes seguir agregando de otras categorías.</p>
         </div>
 
-        <div class="lista">
-          <button *ngFor="let s of serviciosDeCategoria" type="button" class="servicio"
-            [class.elegido]="estaSeleccionado(s)" [attr.aria-pressed]="estaSeleccionado(s)"
-            (click)="alternarServicio(s)">
-            <span class="servicio-icono"><app-icon [name]="iconoCategoria(s.categoria)" [size]="22" /></span>
-            <span class="servicio-info">
-              <span class="servicio-nombre">{{ s.nombre }}</span>
-              <span class="servicio-desc" *ngIf="s.descripcion">{{ s.descripcion }}</span>
-              <span class="servicio-dur"><app-icon name="clock" [size]="14" /> {{ duracionTexto(s.duracionMinutos) }}</span>
-            </span>
-            <span class="check" [class.on]="estaSeleccionado(s)">
-              <app-icon [name]="estaSeleccionado(s) ? 'check' : 'plus'" [size]="16" [stroke]="2" />
-            </span>
-          </button>
-
-          <p *ngIf="!serviciosDeCategoria.length" class="vacio">Pronto tendremos servicios en esta categoría.</p>
-        </div>
+        <section *ngFor="let cat of categorias" class="grupo-servicios" [id]="idCategoria(cat)" [attr.aria-label]="cat">
+          <h2 class="grupo-servicios-titulo">
+            <app-icon [name]="iconoCategoria(cat)" [size]="18" /> {{ cat }}
+          </h2>
+          <div class="lista">
+            <button *ngFor="let s of serviciosDe(cat)" type="button" class="servicio"
+              [class.elegido]="estaSeleccionado(s)" [attr.aria-pressed]="estaSeleccionado(s)"
+              (click)="alternarServicio(s)">
+              <span class="servicio-icono"><app-icon [name]="iconoCategoria(s.categoria)" [size]="22" /></span>
+              <span class="servicio-info">
+                <span class="servicio-nombre">{{ nombreServicio(s) }}</span>
+                <span class="servicio-desc" *ngIf="s.descripcion">{{ s.descripcion }}</span>
+                <span class="servicio-dur"><app-icon name="clock" [size]="14" /> {{ duracionTexto(s.duracionMinutos) }}</span>
+              </span>
+              <span class="check" [class.on]="estaSeleccionado(s)">
+                <app-icon [name]="estaSeleccionado(s) ? 'check' : 'plus'" [size]="16" [stroke]="2" />
+              </span>
+            </button>
+          </div>
+        </section>
 
         <p class="nota-precio">
           <app-icon name="info" [size]="16" />
@@ -153,7 +168,7 @@
         <div class="resumen-fila">
           <app-icon name="sparkles" />
           <div>
-            <p class="resumen-principal" *ngFor="let s of seleccionados">{{ s.categoria }} · {{ s.nombre }}</p>
+            <p class="resumen-principal" *ngFor="let s of seleccionados">{{ nombreServicio(s) }}</p>
             <p class="resumen-sec">{{ duracionTexto(duracionTotal) }} en total</p>
           </div>
           <button type="button" class="link" (click)="irAPaso(1)">Cambiar</button>
