@@ -35,6 +35,23 @@ export class ServiciosPreviewComponent implements OnInit {
   cargando = true;
   duracionTexto = duracionTexto;
 
+  /**
+   * Si la foto falla (señal débil en el celular, caché a medio actualizar),
+   * reintenta una vez saltándose la caché; si vuelve a fallar, la oculta y
+   * queda el fondo suave de la tarjeta en vez del ícono de imagen rota.
+   */
+  alFallarImagen(evento: Event): void {
+    const img = evento.target as HTMLImageElement;
+    if (!img.dataset['reintento']) {
+      img.dataset['reintento'] = '1';
+      const url = new URL(img.src, location.origin);
+      url.searchParams.set('r', Date.now().toString());
+      setTimeout(() => (img.src = url.toString()), 800);
+    } else {
+      img.style.visibility = 'hidden';
+    }
+  }
+
   ngOnInit(): void {
     this.serviciosService.getPublicServicios().subscribe({
       next: (res) => {

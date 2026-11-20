@@ -13,7 +13,7 @@
     <div class="grid" *ngIf="!cargando && categorias.length">
       <article *ngFor="let cat of categorias" class="tarjeta">
         <div class="tarjeta-img">
-          <img [src]="cat.imagen" [alt]="cat.nombre" loading="lazy" />
+          <img [src]="cat.imagen" [alt]="cat.nombre" loading="lazy" (error)="alFallarImagen($event)" />
           <span class="tarjeta-icono"><app-icon [name]="cat.icono" [size]="20" /></span>
         </div>
         <div class="tarjeta-cuerpo">
