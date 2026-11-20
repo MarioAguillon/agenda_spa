@@ -113,19 +113,26 @@ Para que a Claudia le llegue un aviso al celular cuando una clienta reserve:
 
 ## 7. Dominio propio: claudiasantananails.com
 
-1. Compra el dominio (Namecheap, GoDaddy, Cloudflare, etc.).
-2. En Vercel → proyecto `claudia-santana-nails` → **Settings → Domains** → agrega
-   `claudiasantananails.com` y también `www.claudiasantananails.com`.
-   Vercel te propone que `www` redirija al dominio principal: acéptalo.
-3. Vercel te muestra los registros DNS. En el panel donde compraste el dominio crea:
+> **Estado actual (20-nov-2026): configurado y funcionando.** El dominio está en **Hostinger**
+> (renovación automática activa). La dirección principal es `claudiasantananails.com` y
+> `www.claudiasantananails.com` redirige a ella (308 permanente).
 
-| Tipo | Nombre | Valor |
-| --- | --- | --- |
-| `A` | `@` | `76.76.21.21` |
-| `CNAME` | `www` | `cname.vercel-dns.com` |
+1. Dominio comprado en Hostinger. Después de pagar hay que **completar el registro** (datos del titular)
+   en hPanel → Dominios → **Configurar**, y confirmar el correo de verificación; si no, el dominio no se activa.
+2. En Vercel → proyecto `claudia-santana-nails` → **Settings → Domains**:
+   - `claudiasantananails.com` → conectado a **Production** (sin la opción "redirect apex to www").
+   - `www.claudiasantananails.com` → **Redirect to Another Domain** → `claudiasantananails.com` (308).
+3. En Hostinger → hPanel → Dominios → `claudiasantananails.com` → **DNS / Nameservers**
+   (nameservers de Hostinger) se editaron los dos registros que venían por defecto:
 
-   (Usa exactamente los valores que te muestre Vercel si son distintos.) El candado HTTPS se activa solo
-   en minutos u horas.
+| Tipo | Nombre | Valor | TTL |
+| --- | --- | --- | --- |
+| `A` | `@` | `216.198.79.1` | 3600 |
+| `CNAME` | `www` | `54b7bb69f34d0617.vercel-dns-017.com` | 300 |
+
+   Estos valores los da Vercel (Settings → Domains → View DNS configuration); si algún día cambian,
+   usa siempre los que muestre Vercel. Hostinger exige un TTL de al menos 60. Si al guardar aparece una
+   oferta de alojamiento de Hostinger, elige **"No, gracias, apunta a mi dominio"**.
 4. En Render → `claudia-santana-api` → **Environment** cambia `CLIENT_URL` a:
    `https://claudiasantananails.com,https://www.claudiasantananails.com,https://claudia-santana-nails.vercel.app`
    **Sin este paso las reservas fallan** en el dominio nuevo (el servidor rechaza orígenes desconocidos).
