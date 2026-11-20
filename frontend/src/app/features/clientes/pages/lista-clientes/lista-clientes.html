@@ -4,7 +4,7 @@
       <h1 class="serif-heading">Directorio de Clientes</h1>
       <p>Consulta información de contacto e historial de reservas de tus clientas.</p>
     </div>
-    <app-button variant="gold" (btnClick)="openCreateModal()">+ NUEVA CLIENTA</app-button>
+    <app-button variant="gold" icon="plus" (btnClick)="openCreateModal()">Nueva clienta</app-button>
   </div>
 
   <!-- Barra de Búsqueda -->
@@ -39,8 +39,8 @@
       </div>
 
       <div class="card-footer">
-        <a [href]="'https://wa.me/' + c.telefono" target="_blank" class="btn-wa">
-          Escribir por WhatsApp
+        <a [href]="'https://wa.me/' + c.telefono" target="_blank" class="btn-wa" rel="noopener">
+          <span class="wa-punto" aria-hidden="true"></span> Escribir por WhatsApp
         </a>
       </div>
     </div>
@@ -72,8 +72,8 @@
         </div>
 
         <div class="modal-actions">
-          <app-button variant="secondary" (btnClick)="closeCreateModal()" type="button">CANCELAR</app-button>
-          <app-button variant="gold" type="submit" [loading]="isSaving">REGISTRAR</app-button>
+          <app-button variant="secondary" (btnClick)="closeCreateModal()" type="button">Cancelar</app-button>
+          <app-button variant="gold" type="submit" [loading]="isSaving">Registrar clienta</app-button>
         </div>
       </form>
     </div>

@@ -177,9 +177,19 @@
   border: 1px solid var(--line);
   background: var(--white);
   font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
   cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast),
+    background var(--transition-fast), box-shadow var(--transition-normal), transform var(--transition-normal);
 }
-.btn-accion:hover { border-color: var(--gold); color: var(--gold-dark); }
+.btn-accion:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  background: var(--gold-wash);
+  box-shadow: 0 4px 12px rgba(176, 141, 87, 0.15);
+  transform: translateY(-1px);
+}
 
 .ayuda { font-size: 0.8rem; color: var(--mauve); font-weight: 400; }
 

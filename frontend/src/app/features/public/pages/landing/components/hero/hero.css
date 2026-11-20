@@ -29,12 +29,16 @@
 }
 
 .hero-logo {
-  width: 112px;
-  height: 112px;
-  margin: 0 auto 1.5rem;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(217, 194, 154, 0.5);
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1.25rem;
+  object-fit: contain;
+  /* Sin fondo: solo el dorado, con un halo oscuro suave para leerse sobre la foto */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 18px rgba(30, 26, 29, 0.35));
+}
+
+@media (max-width: 640px) {
+  .hero-logo { width: 124px; height: 124px; }
 }
 
 .hero-eyebrow { color: var(--gold-light); }
@@ -74,10 +78,12 @@
 
 .hero-sec {
   color: var(--ivory);
-  border-color: rgba(251, 248, 243, 0.45);
-  background: transparent;
+  border-color: rgba(251, 248, 243, 0.4);
+  background: rgba(251, 248, 243, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
-.hero-sec:hover { border-color: var(--ivory); background: rgba(251, 248, 243, 0.08); }
+.hero-sec:hover { border-color: var(--gold-light); color: var(--gold-light); background: rgba(251, 248, 243, 0.14); }
 
 .hero-datos {
   list-style: none;

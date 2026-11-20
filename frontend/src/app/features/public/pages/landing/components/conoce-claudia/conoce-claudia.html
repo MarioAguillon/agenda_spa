@@ -1,0 +1,37 @@
+<section class="section conoce" id="conoce-a-claudia" aria-labelledby="conoce-titulo">
+  <div class="container conoce-grid">
+
+    <div class="video-marco">
+      <video #video
+        [src]="videoUrl" [poster]="portadaUrl"
+        preload="none" playsinline
+        aria-label="Video de bienvenida de Claudia Santana"
+        (ended)="alTerminar()"></video>
+
+      <button *ngIf="!iniciado" type="button" class="video-play" (click)="reproducir()"
+        aria-label="Reproducir el video de bienvenida con sonido">
+        <span class="play-circulo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
+        </span>
+        <span class="play-texto">Ver video · 1 min</span>
+      </button>
+    </div>
+
+    <div class="conoce-texto">
+      <span class="eyebrow">Conoce a Claudia</span>
+      <h2 id="conoce-titulo">Te espero en mi&nbsp;spa</h2>
+      <p class="conoce-lead">
+        Un espacio pensado para que te relajes mientras cuidamos cada detalle de tus manos y pies.
+      </p>
+      <ul class="conoce-puntos">
+        <li><app-icon name="sparkles" [size]="18" /> Atención personalizada de principio a fin</li>
+        <li><app-icon name="heart" [size]="18" /> Un ambiente tranquilo, limpio y acogedor</li>
+        <li><app-icon name="star" [size]="18" /> Diseños a tu gusto, con dedicación en cada detalle</li>
+      </ul>
+      <a routerLink="/reservar" class="btn btn-gold conoce-cta">
+        Reservar mi cita <app-icon name="arrow-right" [size]="18" />
+      </a>
+    </div>
+
+  </div>
+</section>

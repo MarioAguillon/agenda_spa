@@ -2,7 +2,7 @@
   <!-- Encabezado y Estadísticas -->
   <div class="page-header">
     <h1 class="serif-heading">Agenda de hoy</h1>
-    <app-button variant="gold" (btnClick)="openCrearCitaModal()">+ Agendar cita</app-button>
+    <app-button variant="gold" icon="plus" (btnClick)="openCrearCitaModal()">Agendar cita</app-button>
   </div>
 
   <app-loading *ngIf="isLoading" message="Cargando agenda del día..."></app-loading>
@@ -54,9 +54,9 @@
                 <span *ngFor="let s of cita.servicios; let last = last">{{ s.nombre }}{{ !last ? ', ' : '' }}</span>
               </div>
               <div class="k-card-actions">
-                <button class="k-btn k-btn-complete" title="Completar" (click)="cambiarEstado(cita, 'COMPLETADA')">Lista</button>
-                <button class="k-btn k-btn-noshow" title="No Asistió" (click)="cambiarEstado(cita, 'NO_ASISTIO')">No vino</button>
-                <button class="k-btn k-btn-cancel" title="Cancelar" (click)="cambiarEstado(cita, 'CANCELADA')">Cancelar</button>
+                <button type="button" class="k-btn k-btn-complete" title="Marcar como atendida" (click)="cambiarEstado(cita, 'COMPLETADA')">Lista</button>
+                <button type="button" class="k-btn k-btn-noshow" title="No asistió" (click)="cambiarEstado(cita, 'NO_ASISTIO')">No vino</button>
+                <button type="button" class="k-btn k-btn-cancel" title="Cancelar cita" (click)="cambiarEstado(cita, 'CANCELADA')">Cancelar</button>
               </div>
             </div>
             <div *ngIf="citasConfirmadas.length === 0" class="k-empty">No hay citas pendientes.</div>

@@ -7,8 +7,13 @@
     </div>
 
     <div class="mosaico">
-      <figure *ngFor="let item of trabajos; let i = index" class="pieza" [class.grande]="i === 0">
-        <img [src]="item.imagen" [alt]="item.titulo" loading="lazy" />
+      <figure *ngFor="let item of trabajos; let i = index" class="pieza" [class.grande]="i === 0" [class.con-video]="!!item.video">
+        <img *ngIf="!item.video" [src]="item.imagen" [alt]="item.titulo" [style.object-position]="item.posicion || null" loading="lazy" />
+        <video *ngIf="item.video" #clip
+          [src]="item.video + '#t=0.1'" [style.object-position]="item.posicion || null"
+          muted loop playsinline preload="metadata" disablepictureinpicture
+          [attr.aria-label]="'Video: ' + item.titulo"
+          (mouseenter)="alEntrar(clip)" (mouseleave)="alSalir(clip)"></video>
         <figcaption>
           <span class="pieza-tag">{{ item.tag }}</span>
           <span class="pieza-titulo">{{ item.titulo }}</span>

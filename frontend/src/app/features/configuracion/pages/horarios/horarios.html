@@ -5,8 +5,8 @@
       <p>Define la jornada laboral de Claudia Santana Nails y bloquea horas específicas (almuerzos, vacaciones).</p>
     </div>
     <div class="header-btns">
-      <app-button variant="outline-gold" (btnClick)="openBloqueoModal()">BLOQUEAR HORARIO</app-button>
-      <app-button variant="gold" (btnClick)="guardarHorarios()" [loading]="isSaving">GUARDAR CAMBIOS</app-button>
+      <app-button variant="outline-gold" icon="lock" (btnClick)="openBloqueoModal()">Bloquear horario</app-button>
+      <app-button variant="gold" (btnClick)="guardarHorarios()" icon="check" [loading]="isSaving">Guardar cambios</app-button>
     </div>
   </div>
 
@@ -74,8 +74,8 @@
         </div>
 
         <div class="modal-actions">
-          <app-button variant="secondary" (btnClick)="closeBloqueoModal()" type="button">CANCELAR</app-button>
-          <app-button variant="gold" type="submit" [loading]="isSavingBloqueo">APLICAR BLOQUEO</app-button>
+          <app-button variant="secondary" (btnClick)="closeBloqueoModal()" type="button">Cancelar</app-button>
+          <app-button variant="gold" type="submit" [loading]="isSavingBloqueo">Aplicar bloqueo</app-button>
         </div>
       </form>
     </div>

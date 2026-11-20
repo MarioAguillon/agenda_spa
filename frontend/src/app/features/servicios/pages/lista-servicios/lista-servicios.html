@@ -4,7 +4,7 @@
       <h1 class="serif-heading">Servicios</h1>
       <p>Lo que ven tus clientas al reservar. La duración se usa para calcular la agenda.</p>
     </div>
-    <app-button variant="gold" (btnClick)="openCreateModal()">+ Nuevo servicio</app-button>
+    <app-button variant="gold" icon="plus" (btnClick)="openCreateModal()">Nuevo servicio</app-button>
   </div>
 
   <app-loading *ngIf="isLoading" message="Cargando servicios..."></app-loading>

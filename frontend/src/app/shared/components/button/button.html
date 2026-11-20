@@ -2,7 +2,9 @@
   [type]="type"
   [disabled]="disabled || loading"
   [class]="'btn btn-' + variant + (fullWidth ? ' full-width' : '')"
+  [attr.aria-busy]="loading || null"
   (click)="onClick($event)">
-  <span *ngIf="loading" class="spinner"></span>
+  <span *ngIf="loading" class="spinner" aria-hidden="true"></span>
+  <app-icon *ngIf="icon && !loading" [name]="icon" [size]="18" />
   <ng-content></ng-content>
 </button>

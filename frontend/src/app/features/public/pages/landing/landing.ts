@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HeroComponent } from './components/hero/hero';
+import { ConoceClaudiaComponent } from './components/conoce-claudia/conoce-claudia';
 import { ServiciosPreviewComponent } from './components/servicios-preview/servicios-preview';
 import { GaleriaComponent } from './components/galeria/galeria';
 import { UbicacionComponent } from './components/ubicacion/ubicacion';
@@ -14,6 +15,7 @@ import { FooterComponent } from './components/footer/footer';
     CommonModule,
     RouterLink,
     HeroComponent,
+    ConoceClaudiaComponent,
     ServiciosPreviewComponent,
     GaleriaComponent,
     UbicacionComponent,

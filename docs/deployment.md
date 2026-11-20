@@ -111,6 +111,27 @@ Para que a Claudia le llegue un aviso al celular cuando una clienta reserve:
 
 ---
 
+## 7. Dominio propio: claudiasantananails.com
+
+1. Compra el dominio (Namecheap, GoDaddy, Cloudflare, etc.).
+2. En Vercel → proyecto `claudia-santana-nails` → **Settings → Domains** → agrega
+   `claudiasantananails.com` y también `www.claudiasantananails.com`.
+   Vercel te propone que `www` redirija al dominio principal: acéptalo.
+3. Vercel te muestra los registros DNS. En el panel donde compraste el dominio crea:
+
+| Tipo | Nombre | Valor |
+| --- | --- | --- |
+| `A` | `@` | `76.76.21.21` |
+| `CNAME` | `www` | `cname.vercel-dns.com` |
+
+   (Usa exactamente los valores que te muestre Vercel si son distintos.) El candado HTTPS se activa solo
+   en minutos u horas.
+4. En Render → `claudia-santana-api` → **Environment** cambia `CLIENT_URL` a:
+   `https://claudiasantananails.com,https://www.claudiasantananails.com,https://claudia-santana-nails.vercel.app`
+   **Sin este paso las reservas fallan** en el dominio nuevo (el servidor rechaza orígenes desconocidos).
+5. Claudia debe abrir `https://claudiasantananails.com/login` y **volver a instalar** la app en el celular
+   (la instalación anterior queda ligada a la dirección de Vercel). Si usa notificaciones, aceptarlas de nuevo.
+
 ## Actualizaciones futuras
 
 Cada vez que se suben cambios a la rama `main` en GitHub, Vercel y Render se actualizan solos.
